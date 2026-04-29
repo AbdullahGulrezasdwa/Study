@@ -2520,6 +2520,22 @@
                 <input type="checkbox" id="op-seq">
                 <span>Sequences</span>
               </label>
+              <label class="checkbox-item">
+                <input type="checkbox" id="op-algebra">
+                <span>Algebra</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" id="op-angles">
+                <span>Angles</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" id="op-probability">
+                <span>Probability</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" id="op-circles">
+                <span>Circles</span>
+              </label>
             </div>
           </div>
 
@@ -3396,6 +3412,22 @@ What is an adjective?|A word that describes a noun."></textarea>
         generateSequenceQuestions(5, 'mixed'); // Add 5 mixed sequence questions
       }
 
+      if (document.getElementById('op-algebra').checked) {
+        generateAlgebraQuestions(5); // Add 5 algebra questions
+      }
+
+      if (document.getElementById('op-angles').checked) {
+        generateAngleQuestions(5); // Add 5 angle questions
+      }
+
+      if (document.getElementById('op-probability').checked) {
+        generateProbabilityQuestions(5); // Add 5 probability questions
+      }
+
+      if (document.getElementById('op-circles').checked) {
+        generateCircleQuestions(5); // Add 5 circle questions
+      }
+
       shuffleArray(state.questions);
     }
 
@@ -3560,6 +3592,131 @@ What is an adjective?|A word that describes a noun."></textarea>
           question: seq.join(', ') + ', ?',
           answer: answer.toString(),
           hint: 'Find the next number'
+        });
+      }
+    }
+
+    function generateAlgebraQuestions(count) {
+      count = count || 5;
+      for (let i = 0; i < count; i++) {
+        const type = randInt(1, 3); // 1: ax + b = c, 2: ax - b = c, 3: a + bx = c
+        let question, answer;
+        let a, b, c, x;
+
+        switch (type) {
+          case 1: // ax + b = c
+            a = randInt(2, 5);
+            x = randInt(1, 10);
+            b = randInt(1, 10);
+            c = a * x + b;
+            question = `${a}x + ${b} = ${c}`;
+            answer = x;
+            break;
+          case 2: // ax - b = c
+            a = randInt(2, 5);
+            x = randInt(3, 12);
+            b = randInt(1, 10);
+            c = a * x - b;
+            question = `${a}x - ${b} = ${c}`;
+            answer = x;
+            break;
+          case 3: // a + bx = c
+            a = randInt(1, 10);
+            b = randInt(2, 5);
+            x = randInt(1, 10);
+            c = a + b * x;
+            question = `${a} + ${b}x = ${c}`;
+            answer = x;
+            break;
+        }
+
+        state.questions.push({
+          type: 'text',
+          question: `Solve for x: ${question}`,
+          answer: answer.toString()
+        });
+      }
+    }
+
+    function generateAngleQuestions(count) {
+      count = count || 5;
+      for (let i = 0; i < count; i++) {
+        const type = randInt(1, 2); // 1: straight line, 2: around a point
+        let question, answer;
+        let angle1, angle2, angle3;
+
+        switch (type) {
+          case 1: // Angles on a straight line
+            angle1 = randInt(10, 170);
+            answer = 180 - angle1;
+            question = `An angle on a straight line is ${angle1}°. What is the other angle?`;
+            break;
+          case 2: // Angles around a point
+            angle1 = randInt(10, 100);
+            angle2 = randInt(10, 100);
+            answer = 360 - angle1 - angle2;
+            question = `Two angles around a point are ${angle1}° and ${angle2}°. What is the third angle?`;
+            break;
+        }
+
+        state.questions.push({
+          type: 'text',
+          question: question,
+          answer: answer.toString()
+        });
+      }
+    }
+
+    function generateProbabilityQuestions(count) {
+      count = count || 5;
+      for (let i = 0; i < count; i++) {
+        const type = randInt(1, 2); // 1: dice, 2: coins
+        let question, answer;
+
+        switch (type) {
+          case 1: // Dice
+            const target = randInt(1, 6);
+            question = `What is the probability of rolling a ${target} on a standard six-sided die? (as a fraction)`;
+            answer = `1/${6}`;
+            break;
+          case 2: // Coins
+            const numCoins = randInt(1, 3);
+            const outcomes = Math.pow(2, numCoins);
+            question = `What is the probability of getting all heads when flipping ${numCoins} coin(s)? (as a fraction)`;
+            answer = `1/${outcomes}`;
+            break;
+        }
+
+        state.questions.push({
+          type: 'text',
+          question: question,
+          answer: answer.toString()
+        });
+      }
+    }
+
+    function generateCircleQuestions(count) {
+      count = count || 5;
+      for (let i = 0; i < count; i++) {
+        const type = randInt(1, 2); // 1: circumference, 2: area
+        const radius = randInt(1, 10);
+        let question, answer;
+
+        switch (type) {
+          case 1: // Circumference
+            answer = (2 * Math.PI * radius).toFixed(2);
+            question = `What is the circumference of a circle with radius ${radius}? (round to 2 decimal places)`;
+            break;
+          case 2: // Area
+            answer = (Math.PI * radius * radius).toFixed(2);
+            question = `What is the area of a circle with radius ${radius}? (round to 2 decimal places)`;
+            break;
+        }
+
+        state.questions.push({
+          type: 'text',
+          question: question,
+          answer: answer.toString()
         });
       }
     }
