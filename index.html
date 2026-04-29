@@ -2463,6 +2463,16 @@
             <div class="quiz-type-name">Sequences</div>
             <div class="quiz-type-desc">Pattern recognition</div>
           </div>
+          <div class="quiz-type-card" data-type="science" role="radio" aria-checked="false" tabindex="0">
+            <span class="quiz-type-icon">&#128300;</span> <!-- Placeholder icon for science -->
+            <div class="quiz-type-name">Science</div>
+            <div class="quiz-type-desc">Explore scientific concepts</div>
+          </div>
+          <div class="quiz-type-card" data-type="english" role="radio" aria-checked="false" tabindex="0">
+            <span class="quiz-type-icon">&#128214;</span> <!-- Placeholder icon for English -->
+            <div class="quiz-type-name">English</div>
+            <div class="quiz-type-desc">Language and literature challenges</div>
+          </div>
         </div>
       </div>
 
@@ -2499,12 +2509,16 @@
                 <span>- Subtract</span>
               </label>
               <label class="checkbox-item">
-                <input type="checkbox" id="op-mul">
+                <input type="checkbox" id="op-mul" checked>
                 <span>x Multiply</span>
               </label>
               <label class="checkbox-item">
-                <input type="checkbox" id="op-div">
+                <input type="checkbox" id="op-div" checked>
                 <span>&#247; Divide</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" id="op-seq">
+                <span>Sequences</span>
               </label>
             </div>
           </div>
@@ -2667,6 +2681,50 @@ Osmosis|Movement of water through a membrane"></textarea>
           <div class="form-group">
             <label class="form-label">Number of Questions</label>
             <input type="number" class="form-input" id="seq-count" value="10" min="3" max="30">
+          </div>
+        </div>
+      </div>
+
+      <!-- Science Options -->
+      <div class="options-panel" id="science-options">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon warning">&#128300;</div>
+            <div class="card-info">
+              <h3>Science Quiz Settings</h3>
+              <p>Configure your science challenge</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Science Topics (one per line)</label>
+            <textarea class="form-textarea" id="science-input" rows="10" placeholder="e.g., What is the capital of France?|Paris
+What is the chemical symbol for water?|H2O"></textarea>
+            <div class="form-hint">
+              <span>&#128161;</span>
+              <span>Format: <code>Question|Answer</code></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- English Options -->
+      <div class="options-panel" id="english-options">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon warning">&#128214;</div>
+            <div class="card-info">
+              <h3>English Quiz Settings</h3>
+              <p>Configure your English challenge</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">English Topics (one per line)</label>
+            <textarea class="form-textarea" id="english-input" rows="10" placeholder="e.g., What is a noun?|A word that names a person, place, thing, or idea.
+What is an adjective?|A word that describes a noun."></textarea>
+            <div class="form-hint">
+              <span>&#128161;</span>
+              <span>Format: <code>Question|Answer</code></span>
+            </div>
           </div>
         </div>
       </div>
@@ -2909,6 +2967,7 @@ Osmosis|Movement of water through a membrane"></textarea>
           <div class="results-badge" id="vs-result-badge">Match Complete</div>
           <div class="results-score" id="vs-final-score">0 - 0</div>
           <div class="results-label" id="vs-result-label">Final Score</div>
+          <div class="results-accuracy" id="vs-accuracy">Accuracy: 0%</div>
 
           <div class="btn-group" style="justify-content: center; margin-top: 40px;">
             <button class="btn btn-primary btn-lg" onclick="rematch()">
@@ -3023,6 +3082,8 @@ Osmosis|Movement of water through a membrane"></textarea>
       roomCode: '',
       opponentName: 'Opponent',
       vsScore: { me: 0, opponent: 0 },
+      vsCorrectAnswers: 0,
+      vsTotalQuestions: 0,
       vsQuestionIndex: 0,
       vsAnswered: false,
       
@@ -3264,6 +3325,8 @@ Osmosis|Movement of water through a membrane"></textarea>
         case 'form': generateFormQuestions(); break;
         case 'flashcard': generateFlashcardQuestions(); break;
         case 'sequence': generateSequenceQuestions(); break;
+        case 'science': generateScienceQuestions(); break;
+        case 'english': generateEnglishQuestions(); break;
       }
       
       state.totalQuestions = state.questions.length;
@@ -3328,6 +3391,12 @@ Osmosis|Movement of water through a membrane"></textarea>
           answer: answer.toString()
         });
       }
+
+      if (document.getElementById('op-seq').checked) {
+        generateSequenceQuestions(5, 'mixed'); // Add 5 mixed sequence questions
+      }
+
+      shuffleArray(state.questions);
     }
 
     function generateSpellingQuestions() {
@@ -3421,9 +3490,9 @@ Osmosis|Movement of water through a membrane"></textarea>
       shuffleArray(state.questions);
     }
 
-    function generateSequenceQuestions() {
-      const seqType = document.getElementById('seq-type').value;
-      const count = parseInt(document.getElementById('seq-count').value) || 10;
+    function generateSequenceQuestions(count, seqType) {
+      count = count || (parseInt(document.getElementById('seq-count').value) || 10);
+      seqType = seqType || document.getElementById('seq-type').value;
       
       const types = seqType === 'mixed' 
         ? ['arithmetic', 'geometric', 'fibonacci', 'squares', 'primes', 'triangular']
@@ -3493,6 +3562,42 @@ Osmosis|Movement of water through a membrane"></textarea>
           hint: 'Find the next number'
         });
       }
+    }
+
+    function generateScienceQuestions() {
+      const input = document.getElementById('science-input').value.trim();
+      const lines = input.split('\n').filter(l => l.includes('|'));
+      
+      lines.forEach(line => {
+        const [q, a] = line.split('|').map(s => s.trim());
+        if (q && a) {
+          state.questions.push({
+            type: 'text',
+            question: q,
+            answer: a.toLowerCase()
+          });
+        }
+      });
+      
+      shuffleArray(state.questions);
+    }
+
+    function generateEnglishQuestions() {
+      const input = document.getElementById('english-input').value.trim();
+      const lines = input.split('\n').filter(l => l.includes('|'));
+      
+      lines.forEach(line => {
+        const [q, a] = line.split('|').map(s => s.trim());
+        if (q && a) {
+          state.questions.push({
+            type: 'text',
+            question: q,
+            answer: a.toLowerCase()
+          });
+        }
+      });
+      
+      shuffleArray(state.questions);
     }
 
     // ============ SOLO QUIZ ============
@@ -3620,7 +3725,7 @@ Osmosis|Movement of water through a membrane"></textarea>
       } else {
         userAnswer = document.getElementById('solo-answer').value.trim().toLowerCase();
         const correctAnswer = q.answer.toLowerCase();
-        isCorrect = checkAnswer(userAnswer, correctAnswer);
+        isCorrect = checkAnswer(userAnswer, correctAnswer, q.type);
         
         const input = document.getElementById('solo-answer');
         input.classList.add(isCorrect ? 'correct' : 'wrong');
@@ -3662,8 +3767,14 @@ Osmosis|Movement of water through a membrane"></textarea>
       }
     }
 
-    function checkAnswer(user, correct) {
+    function checkAnswer(user, correct, questionType) {
       if (!user) return false;
+
+      // For spelling questions, require exact match
+      if (questionType === 'spelling') {
+        return user === correct;
+      }
+
       if (user === correct) return true;
       
       // Numeric comparison
@@ -3671,7 +3782,7 @@ Osmosis|Movement of water through a membrane"></textarea>
         return parseFloat(user) === parseFloat(correct);
       }
       
-      // Levenshtein distance for typo tolerance
+      // Levenshtein distance for typo tolerance (for non-spelling text questions)
       const distance = levenshtein(user, correct);
       const maxAllowedErrors = Math.max(1, Math.floor(correct.length * 0.2));
       return distance <= maxAllowedErrors;
@@ -3773,6 +3884,13 @@ Osmosis|Movement of water through a membrane"></textarea>
       document.querySelector('#solo .quiz-screen').style.display = 'block';
       startSoloQuiz();
     }
+
+    // Handle page unload to clean up VS mode connections
+    window.addEventListener('beforeunload', () => {
+      if (state.conn) {
+        leaveVsMode();
+      }
+    });
 
     // ============ TIMER ============
     function startTimer(mode) {
@@ -4079,6 +4197,8 @@ Osmosis|Movement of water through a membrane"></textarea>
     function startVsMatch() {
       state.vsQuestionIndex = 0;
       state.vsScore = { me: 0, opponent: 0 };
+      state.vsCorrectAnswers = 0;
+      state.vsTotalQuestions = state.questions.length;
       state.streak = 0;
       
       document.getElementById('vs-setup').classList.add('hidden');
@@ -4174,7 +4294,7 @@ Osmosis|Movement of water through a membrane"></textarea>
       } else {
         const userAnswer = document.getElementById('vs-answer').value.trim().toLowerCase();
         const correctAnswer = q.answer.toLowerCase();
-        isCorrect = checkAnswer(userAnswer, correctAnswer);
+        isCorrect = checkAnswer(userAnswer, correctAnswer, q.type);
         
         const input = document.getElementById('vs-answer');
         input.classList.add(isCorrect ? 'correct' : 'wrong');
@@ -4187,6 +4307,7 @@ Osmosis|Movement of water through a membrane"></textarea>
         const streakBonus = Math.min(state.streak * 5, 50);
         state.vsScore.me += 10 + timeBonus + streakBonus;
         state.streak++;
+        state.vsCorrectAnswers++;
         showFeedback(true);
         playSound('correct');
       } else {
@@ -4220,7 +4341,10 @@ Osmosis|Movement of water through a membrane"></textarea>
       const myScore = state.vsScore.me;
       const oppScore = state.vsScore.opponent;
       
+      const accuracy = state.vsTotalQuestions > 0 ? Math.round((state.vsCorrectAnswers / state.vsTotalQuestions) * 100) : 0;
+
       document.getElementById('vs-final-score').textContent = `${myScore} - ${oppScore}`;
+      document.getElementById('vs-accuracy').textContent = `Accuracy: ${accuracy}%`;
       
       if (myScore > oppScore) {
         document.getElementById('vs-result-badge').textContent = 'Victory!';
