@@ -592,15 +592,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <div class="screen-title">AI Tutor 🤖</div>
   </div>
 
-  <!-- API key setup -->
-  <div id="ai-key-setup" class="setup-panel" style="margin-bottom:20px;">
-    <span class="setup-label">🔑 Gemini API Key (free at <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent2);">aistudio.google.com</a>)</span>
-    <div style="display:flex;gap:8px;margin-top:8px;">
-      <input id="gemini-key-input" class="fitb-input" type="password" placeholder="Paste your Gemini API key here..." style="flex:1;">
-      <button class="btn btn-primary btn-sm" onclick="saveGeminiKey()">Save</button>
-    </div>
-    <div style="font-size:.75rem;color:var(--muted);margin-top:8px;font-family:'Space Mono',monospace;">Key is stored only in your browser (localStorage). Get a free key — no credit card needed.</div>
-  </div>
+  <!-- AI ready -->
+  <div id="ai-key-setup" style="display:none;"></div>
 
   <!-- Tabs -->
   <div class="tab-row" style="margin-bottom:20px;">
@@ -1713,35 +1706,31 @@ function leaveMp() {
 
 
 // ══════════════════════════════════════════════════════════════════
-// AI TUTOR — Gemini API
+// AI TUTOR — OpenRouter (Llama 3.3 70B, free)
 // ══════════════════════════════════════════════════════════════════
-function saveGeminiKey() {
-  const k = document.getElementById('gemini-key-input').value.trim();
-  if (!k) return alert('Please paste your API key first.');
-  localStorage.setItem('gemini_key', k);
-  document.getElementById('ai-key-setup').innerHTML = `<div style="color:var(--green);font-family:'Space Mono',monospace;font-size:.85rem;">✓ API key saved! You can now use all AI features.</div>`;
-}
+const OR_KEY = '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';
 
-function getGeminiKey() {
-  const k = localStorage.getItem('gemini_key');
-  if (!k) { alert('Please enter your Gemini API key first (at the top of this page).'); return null; }
-  return k;
-}
-
-async function callGemini(prompt) {
-  const key = getGeminiKey();
-  if (!key) throw new Error('No key');
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+async function callAI(prompt) {
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OR_KEY}`,
+      'HTTP-Referer': window.location.href,
+      'X-Title': 'GL Revision Year 7'
+    },
+    body: JSON.stringify({
+      model: 'meta-llama/llama-3.3-70b-instruct:free',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7
+    })
   });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.error?.message || 'API error');
+    throw new Error(err.error?.message || `API error ${res.status}`);
   }
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  return data.choices?.[0]?.message?.content || '';
 }
 
 function switchAiTab(tab, btn) {
@@ -1753,14 +1742,7 @@ function switchAiTab(tab, btn) {
 }
 
 // Check if key already saved on screen load
-function initAiScreen() {
-  if (localStorage.getItem('gemini_key')) {
-    document.getElementById('ai-key-setup').innerHTML = `<div style="color:var(--green);font-family:'Space Mono',monospace;font-size:.85rem;">✓ API key loaded. <span style="cursor:pointer;color:var(--accent2);text-decoration:underline;" onclick="localStorage.removeItem('gemini_key');location.reload()">Change key</span></div>`;
-  } else {
-    const saved = document.getElementById('gemini-key-input');
-    if (saved) saved.value = '';
-  }
-}
+function initAiScreen() { /* key is built-in, nothing to init */ }
 
 // ── AI QUIZ ──
 async function generateAiQuiz() {
@@ -1797,7 +1779,7 @@ Make sure:
   loading.style.display = 'block'; area.innerHTML = '';
 
   try {
-    const raw = await callGemini(prompt);
+    const raw = await callAI(prompt);
     const clean = raw.replace(/```json|```/g, '').trim();
     const qs = JSON.parse(clean);
     area.innerHTML = qs.map((q, i) => renderAiQuizCard(q, i)).join('');
@@ -1871,7 +1853,7 @@ Make sure questions cover different skills: retrieval, inference, language analy
   loading.style.display = 'block'; area.innerHTML = '';
 
   try {
-    const raw = await callGemini(prompt);
+    const raw = await callAI(prompt);
     const clean = raw.replace(/```json|```/g, '').trim();
     const data = JSON.parse(clean);
     area.innerHTML = `
@@ -1921,7 +1903,7 @@ Format your response with clear sections using **bold** for key terms. Start dir
   loading.style.display = 'block'; area.innerHTML = '';
 
   try {
-    const raw = await callGemini(prompt);
+    const raw = await callAI(prompt);
     // Simple markdown bold conversion
     const html = raw.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
     area.innerHTML = `<div class="ai-explain-box"><h3>💡 Explanation</h3>${html}
