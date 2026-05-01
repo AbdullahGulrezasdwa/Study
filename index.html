@@ -1746,7 +1746,7 @@ function initAiScreen() { /* key is built-in, nothing to init */ }
 
 // ── AI QUIZ ──
 async function generateAiQuiz() {
-  const key = getGeminiKey(); if (!key) return;
+  
   const subjectChip = document.querySelector('[data-group="ai-quiz-subject"].active,[data-val].active');
   const subject = document.querySelector('#ai-tab-quiz .chip.active[data-val]')?.dataset.val || 'english';
   const topic = document.getElementById('ai-quiz-topic').value.trim();
@@ -1819,7 +1819,7 @@ function selectAiOption(qi, oi, chosen, correct, explanation) {
 
 // ── AI PASSAGE ──
 async function generateAiPassage() {
-  const key = getGeminiKey(); if (!key) return;
+  
   const type = document.querySelector('#ai-tab-passage .chip.active')?.dataset.val || 'fiction';
   const topic = document.getElementById('ai-passage-topic').value.trim() || 'an interesting topic';
 
@@ -1882,7 +1882,7 @@ function revealPassageAnswer(i, btn, ans) {
 
 // ── AI EXPLAIN ──
 async function generateAiExplain() {
-  const key = getGeminiKey(); if (!key) return;
+  
   const q = document.getElementById('ai-explain-input').value.trim();
   if (!q) return alert('Type something to explain first!');
 
