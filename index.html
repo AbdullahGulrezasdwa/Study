@@ -1,0 +1,2570 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Year 7 GL Revision dashboard with topic practice, exam simulator, weak-topic replay, and British voice spelling games.">
+  <meta name="keywords" content="GL revision, Year 7, spelling practice, maths revision, English revision, GitHub Pages study app">
+  <meta name="author" content="Abdullah Gulrez">
+  <meta name="theme-color" content="#12343b">
+  <title>GL Revision Lab | Year 7 English, Maths and Spelling</title>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" defer></script>
+  <style>
+    :root {
+      --bg: #071113;
+      --panel: #0d1b1f;
+      --panel-2: #13262b;
+      --card: #102126;
+      --line: #23444a;
+      --text: #f3fbfb;
+      --muted: #9db4b8;
+      --teal: #28d4c7;
+      --amber: #f2b84b;
+      --coral: #ff6b5f;
+      --lime: #8bd450;
+      --blue: #64a6ff;
+      --violet: #a98bff;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.28);
+      --r: 8px;
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(40, 212, 199, 0.12), transparent 32%),
+        linear-gradient(315deg, rgba(242, 184, 75, 0.1), transparent 34%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+    }
+
+    #app {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 22px 0 44px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 0 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--r);
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--teal), var(--amber));
+      color: #031011;
+      font-weight: 900;
+      box-shadow: 0 12px 30px rgba(40, 212, 199, 0.18);
+    }
+
+    .brand h1 {
+      font-size: clamp(1.15rem, 2.6vw, 1.7rem);
+      margin: 0;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; animation: fade 180ms ease-out; }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .hero-main,
+    .panel {
+      background: rgba(13, 27, 31, 0.86);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-main {
+      padding: clamp(20px, 4vw, 34px);
+      min-height: 250px;
+      display: grid;
+      align-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-main::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 auto;
+      width: min(44vw, 420px);
+      height: min(28vw, 260px);
+      background:
+        linear-gradient(90deg, transparent 0 11%, rgba(40, 212, 199, 0.18) 11% 12%, transparent 12% 24%, rgba(242, 184, 75, 0.2) 24% 25%, transparent 25% 38%, rgba(100, 166, 255, 0.18) 38% 39%, transparent 39%),
+        linear-gradient(0deg, transparent 0 18%, rgba(255, 255, 255, 0.06) 18% 19%, transparent 19% 36%, rgba(255, 255, 255, 0.06) 36% 37%, transparent 37%);
+      opacity: 0.55;
+      transform: skewX(-10deg) translate(12%, 16%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      color: var(--teal);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin: 0 0 10px;
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-size: clamp(2rem, 5.8vw, 4.4rem);
+      line-height: 0.96;
+      letter-spacing: 0;
+      max-width: 760px;
+    }
+
+    .hero-copy {
+      color: var(--muted);
+      font-size: clamp(1rem, 2vw, 1.12rem);
+      max-width: 690px;
+      margin: 16px 0 0;
+    }
+
+    .hero-side {
+      padding: 20px;
+      display: grid;
+      align-content: stretch;
+      gap: 12px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 14px;
+      min-height: 84px;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 1.6rem;
+      line-height: 1;
+      color: var(--amber);
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      border-radius: var(--r);
+      padding: 10px 14px;
+      cursor: pointer;
+      color: var(--text);
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      font-weight: 800;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+      text-decoration: none;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: var(--teal);
+    }
+
+    .btn:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 2px;
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #1cc5ba, #158d99);
+      color: #031011;
+      border-color: transparent;
+    }
+
+    .btn.warn {
+      background: linear-gradient(135deg, var(--amber), #d6802e);
+      color: #190d02;
+      border-color: transparent;
+    }
+
+    .btn.danger {
+      background: linear-gradient(135deg, var(--coral), #c4453c);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .btn.ghost {
+      background: transparent;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .control label,
+    .small-label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      font-weight: 850;
+    }
+
+    select,
+    input,
+    textarea {
+      width: 100%;
+      border-radius: var(--r);
+      background: #08171a;
+      color: var(--text);
+      border: 1px solid var(--line);
+      padding: 11px 12px;
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .wide-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 26px 0 12px;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .section-title p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
+      gap: 12px;
+    }
+
+    .topic-card {
+      border: 1px solid var(--line);
+      background: rgba(16, 33, 38, 0.92);
+      border-radius: var(--r);
+      padding: 15px;
+      display: grid;
+      gap: 10px;
+      min-height: 210px;
+    }
+
+    .topic-card header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .topic-card h4 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    .topic-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .topic-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      align-self: end;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      padding: 3px 8px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      background: #09171a;
+    }
+
+    .pill.english { color: #ffd6d2; border-color: rgba(255, 107, 95, 0.4); }
+    .pill.maths { color: #cbe7ff; border-color: rgba(100, 166, 255, 0.4); }
+    .pill.good { color: #dcffc6; border-color: rgba(139, 212, 80, 0.5); }
+    .pill.hot { color: #ffe2a1; border-color: rgba(242, 184, 75, 0.5); }
+
+    .game-shell,
+    .spelling-shell,
+    .result-shell {
+      background: rgba(13, 27, 31, 0.9);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding: clamp(16px, 4vw, 26px);
+    }
+
+    .screen-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .screen-head h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 3vw, 2rem);
+    }
+
+    .screen-head p {
+      margin: 3px 0 0;
+      color: var(--muted);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0 18px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: var(--r);
+      padding: 10px;
+      min-height: 70px;
+    }
+
+    .stat b {
+      display: block;
+      font-size: 1.25rem;
+      color: var(--teal);
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .progress {
+      height: 8px;
+      border-radius: 999px;
+      background: #08171a;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      margin: 14px 0 18px;
+    }
+
+    .progress > div {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--teal), var(--amber));
+      transition: width 220ms ease;
+    }
+
+    .question-area {
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+    }
+
+    .prompt {
+      font-size: clamp(1.1rem, 2.4vw, 1.45rem);
+      line-height: 1.45;
+      font-weight: 850;
+      margin: 12px 0 18px;
+    }
+
+    .passage {
+      background: #08171a;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 14px;
+      color: #d8e8ea;
+      margin-bottom: 14px;
+      white-space: pre-wrap;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .option {
+      min-height: 58px;
+      justify-content: flex-start;
+      text-align: left;
+      white-space: normal;
+      line-height: 1.3;
+    }
+
+    .option.correct {
+      background: rgba(139, 212, 80, 0.18);
+      border-color: var(--lime);
+      color: #dcffc6;
+    }
+
+    .option.wrong {
+      background: rgba(255, 107, 95, 0.16);
+      border-color: var(--coral);
+      color: #ffd6d2;
+    }
+
+    .answer-box {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .reveal {
+      border: 1px solid var(--line);
+      background: #08171a;
+      border-radius: var(--r);
+      padding: 14px;
+      margin-top: 14px;
+      color: var(--muted);
+    }
+
+    .reveal b { color: var(--text); }
+
+    .flashcard {
+      min-height: 285px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background:
+        linear-gradient(135deg, rgba(40, 212, 199, 0.1), transparent),
+        #08171a;
+      padding: 24px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .flashcard .label {
+      color: var(--teal);
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .flashcard .main {
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      font-weight: 900;
+    }
+
+    .match-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .match-btn {
+      min-height: 64px;
+      white-space: normal;
+      line-height: 1.25;
+    }
+
+    .match-btn.selected { border-color: var(--amber); background: rgba(242, 184, 75, 0.16); }
+    .match-btn.matched { border-color: var(--lime); background: rgba(139, 212, 80, 0.16); color: #dcffc6; }
+
+    .spelling-grid {
+      display: grid;
+      grid-template-columns: minmax(270px, 0.95fr) minmax(0, 1.05fr);
+      gap: 16px;
+    }
+
+    .spelling-play {
+      border-top: 1px solid var(--line);
+      margin-top: 16px;
+      padding-top: 16px;
+    }
+
+    .voice-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .word-target {
+      display: grid;
+      place-items: center;
+      min-height: 130px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background:
+        linear-gradient(90deg, rgba(242, 184, 75, 0.11), transparent),
+        #08171a;
+      margin-bottom: 12px;
+      text-align: center;
+      padding: 18px;
+    }
+
+    .word-target b {
+      display: block;
+      font-size: 2rem;
+      color: var(--amber);
+    }
+
+    .word-target span {
+      color: var(--muted);
+    }
+
+    .mini-log {
+      max-height: 185px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #08171a;
+      padding: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translate(-50%, 110%);
+      background: #08171a;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+      color: var(--text);
+      transition: transform 180ms ease;
+      z-index: 50;
+      width: min(480px, calc(100% - 32px));
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .toast.show { transform: translate(-50%, 0); }
+
+    .empty {
+      border: 1px dashed var(--line);
+      border-radius: var(--r);
+      padding: 24px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 940px) {
+      .hero,
+      .spelling-grid {
+        grid-template-columns: 1fr;
+      }
+      .controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .controls .control:last-child {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 680px) {
+      #app { width: min(100% - 20px, 1180px); padding-top: 12px; }
+      .topbar,
+      .screen-head,
+      .section-title {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .top-actions,
+      .wide-actions {
+        justify-content: stretch;
+      }
+      .btn { width: 100%; }
+      .controls,
+      .stats,
+      .metric-grid,
+      .options,
+      .match-grid,
+      .answer-box,
+      .voice-row {
+        grid-template-columns: 1fr;
+      }
+      .controls .control:last-child {
+        grid-column: auto;
+      }
+      .topic-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">GL</div>
+        <div>
+          <h1>Revision Lab</h1>
+          <p>Year 7 English, Maths and British spelling practice</p>
+        </div>
+      </div>
+      <nav class="top-actions" aria-label="Main actions">
+        <button class="btn ghost" type="button" data-nav="home">Dashboard</button>
+        <button class="btn ghost" type="button" data-action="weak">Weak Topics</button>
+        <button class="btn ghost" type="button" data-nav="spelling">Spelling Lab</button>
+        <button class="btn ghost" type="button" data-action="topicVs">Topic VS</button>
+        <button class="btn primary" type="button" data-action="exam">Exam Simulator</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="homeScreen" class="screen active" aria-labelledby="homeTitle">
+        <div class="hero">
+          <div class="hero-main">
+            <p class="eyebrow">PDF topic list rebuilt as playable revision</p>
+            <h2 id="homeTitle">Train every GL topic without needing an API key.</h2>
+            <p class="hero-copy">Pick a subject, unit, topic and mode. Maths questions are generated fresh. English has extract tasks, grammar drills, rhetoric, literature and vocabulary. Spelling uses your browser's British voice when one is available.</p>
+          </div>
+          <aside class="panel hero-side" aria-label="Revision stats">
+            <div class="metric-grid">
+              <div class="metric"><b id="metricTopics">0</b><span>PDF topics covered</span></div>
+              <div class="metric"><b>8</b><span>practice modes</span></div>
+              <div class="metric"><b id="metricAttempts">0</b><span>saved attempts</span></div>
+              <div class="metric"><b id="metricWeak">0</b><span>weak topics</span></div>
+            </div>
+            <button class="btn warn" type="button" data-action="spellingQuick">Open Spelling Lab</button>
+            <button class="btn primary" type="button" data-action="topicVs">Host Topic VS</button>
+          </aside>
+        </div>
+
+        <section class="panel controls" aria-label="Practice controls">
+          <div class="control">
+            <label for="subjectFilter">Subject</label>
+            <select id="subjectFilter">
+              <option value="all">All subjects</option>
+              <option value="english">English</option>
+              <option value="maths">Maths</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="unitFilter">Unit</label>
+            <select id="unitFilter"></select>
+          </div>
+          <div class="control">
+            <label for="topicFilter">Topic</label>
+            <select id="topicFilter"></select>
+          </div>
+          <div class="control">
+            <label for="modeFilter">Mode</label>
+            <select id="modeFilter">
+              <option value="mc">Multiple choice</option>
+              <option value="type">Type answer</option>
+              <option value="flash">Flashcards</option>
+              <option value="match">Match terms</option>
+              <option value="speed">Speed round</option>
+              <option value="elimination">Elimination</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="countFilter">Questions</label>
+            <select id="countFilter">
+              <option value="10">10</option>
+              <option value="15" selected>15</option>
+              <option value="25">25</option>
+              <option value="40">40</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="difficultyFilter">Difficulty</label>
+            <select id="difficultyFilter">
+              <option value="5">Year 5 warm-up</option>
+              <option value="6">Year 6 secure</option>
+              <option value="7" selected>Year 7 target</option>
+              <option value="8">Year 8 stretch</option>
+              <option value="9">Year 9 beast mode</option>
+            </select>
+          </div>
+          <div class="control">
+            <label>&nbsp;</label>
+            <button class="btn primary" type="button" data-action="startFocused">Start Focus Session</button>
+          </div>
+          <div class="control">
+            <label>&nbsp;</label>
+            <button class="btn primary" type="button" data-action="topicVs">Online Topic VS</button>
+          </div>
+          <div class="control">
+            <label>&nbsp;</label>
+            <button class="btn" type="button" data-action="randomTopic">Surprise Me</button>
+          </div>
+          <div class="control">
+            <label>&nbsp;</label>
+            <button class="btn warn" type="button" data-action="exam">Timed Mixed Exam</button>
+          </div>
+          <div class="control">
+            <label>&nbsp;</label>
+            <button class="btn" type="button" data-action="weak">Replay Mistakes</button>
+          </div>
+        </section>
+
+        <div class="section-title">
+          <div>
+            <h3>Topic Dashboard</h3>
+            <p id="topicCountLabel">Every topic from the assessment list has a playable route.</p>
+          </div>
+          <button class="btn ghost" type="button" data-action="clearStats">Reset local stats</button>
+        </div>
+        <div id="topicGrid" class="topic-grid"></div>
+      </section>
+
+      <section id="gameScreen" class="screen" aria-live="polite">
+        <div class="game-shell">
+          <div class="screen-head">
+            <div>
+              <h2 id="gameTitle">Practice</h2>
+              <p id="gameSubtitle">Answer carefully. Mistakes feed weak-topic replay.</p>
+            </div>
+            <button class="btn ghost" type="button" data-nav="home">Back to dashboard</button>
+          </div>
+          <div class="stats" id="gameStats"></div>
+          <div class="progress" aria-label="Session progress"><div id="gameProgress"></div></div>
+          <div id="gameArea" class="question-area"></div>
+        </div>
+      </section>
+
+      <section id="spellingScreen" class="screen" aria-labelledby="spellingTitle">
+        <div class="spelling-shell">
+          <div class="screen-head">
+            <div>
+              <h2 id="spellingTitle">Spelling Lab</h2>
+              <p>Paste your revision words, choose a British voice if your browser has one, then practise or play VS.</p>
+            </div>
+            <button class="btn ghost" type="button" data-nav="home">Back to dashboard</button>
+          </div>
+
+          <div class="spelling-grid">
+            <section>
+              <label class="small-label" for="wordInput">Revision words</label>
+              <textarea id="wordInput" spellcheck="false" placeholder="Type words separated by commas or new lines"></textarea>
+              <div class="wide-actions">
+                <button class="btn primary" type="button" data-spelling="saveWords">Save Words</button>
+                <button class="btn" type="button" data-spelling="defaults">Load GL Defaults</button>
+                <button class="btn ghost" type="button" data-spelling="shuffleWords">Shuffle</button>
+              </div>
+            </section>
+            <section>
+              <div class="voice-row">
+                <div>
+                  <label class="small-label" for="voiceSelect">Voice</label>
+                  <select id="voiceSelect"></select>
+                </div>
+                <button class="btn" type="button" data-spelling="testVoice">Test Voice</button>
+              </div>
+              <div class="wide-actions" role="group" aria-label="Spelling play modes">
+                <button class="btn primary" type="button" data-spelling="practice">Practice</button>
+                <button class="btn warn" type="button" data-spelling="solo">Timed Solo VS</button>
+                <button class="btn" type="button" data-spelling="two">2 Player Same Device</button>
+                <button class="btn" type="button" data-spelling="online">Online Friend VS</button>
+              </div>
+              <div class="stats">
+                <div class="stat"><b id="wordCount">0</b><span>words</span></div>
+                <div class="stat"><b id="spellBest">0</b><span>solo best</span></div>
+                <div class="stat"><b id="spellStreak">0</b><span>best streak</span></div>
+                <div class="stat"><b id="voiceStatus">0</b><span>voices</span></div>
+              </div>
+            </section>
+          </div>
+
+          <div id="spellingPlay" class="spelling-play"></div>
+        </div>
+      </section>
+
+
+      <section id="onlineScreen" class="screen" aria-labelledby="onlineTitle">
+        <div class="spelling-shell">
+          <div class="screen-head">
+            <div>
+              <h2 id="onlineTitle">PeerJS Topic VS</h2>
+              <p>Host or join a room-code quiz for any dashboard topic, unit or subject filter.</p>
+            </div>
+            <button class="btn ghost" type="button" data-nav="home">Back to dashboard</button>
+          </div>
+          <div id="onlineLobby"></div>
+          <div id="onlinePlay" class="spelling-play"></div>
+        </div>
+      </section>
+      <section id="resultScreen" class="screen" aria-live="polite">
+        <div class="result-shell">
+          <div class="screen-head">
+            <div>
+              <h2 id="resultTitle">Session Complete</h2>
+              <p id="resultSubtitle">Nice work. Your local weak-topic list has been updated.</p>
+            </div>
+            <button class="btn ghost" type="button" data-nav="home">Dashboard</button>
+          </div>
+          <div id="resultBody"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    "use strict";
+
+    const STORE_KEY = "gl-revision-lab-v3";
+    const DEFAULT_WORDS = [
+      "accommodate", "achieve", "aggressive", "apparent", "argument", "awkward",
+      "conscience", "conscious", "definite", "desperate", "develop", "embarrass",
+      "environment", "exaggerate", "existence", "foreign", "guarantee", "harass",
+      "hindrance", "identity", "immediately", "interrupt", "language", "leisure",
+      "lightning", "necessary", "neighbour", "opportunity", "parliament", "persuade",
+      "privilege", "pronunciation", "queue", "recognise", "recommend", "restaurant",
+      "rhyme", "rhythm", "sincerely", "soldier", "stomach", "sufficient", "symbol",
+      "temperature", "thorough", "twelfth", "variety", "vegetable", "yacht"
+    ];
+
+    const SAMPLE_PASSAGES = {
+      fiction: "Mara waited beside the locked observatory, listening to rain tick against the copper dome. The key in her palm felt warmer than it should, as though it had been holding its own secret for years.",
+      nonfiction: "In many cities, community gardens are changing unused land into productive green spaces. Supporters argue that they improve wellbeing, teach practical skills and help residents understand where food comes from."
+    };
+
+    const TOPICS = [
+      topic("retrieval", "english", "Reading", "Retrieval", "Find explicit details and evidence in a text.", ["quotation", "evidence", "detail"]),
+      topic("inference", "english", "Reading", "Inference", "Read between the lines using clues and evidence.", ["inference", "impression", "clue"]),
+      topic("vocabulary", "english", "Reading", "Vocabulary", "Work out meanings, synonyms and word effects.", ["synonym", "context", "connotation"]),
+      topic("word-choice", "english", "Language", "Choosing the Appropriate Word", "Select the word or phrase that best completes a sentence.", ["precise", "appropriate", "context"]),
+      topic("sentence-completion", "english", "Language", "Sentence Completion", "Complete sentences so they make grammatical sense.", ["cohesion", "grammar", "sense"]),
+      topic("spelling-context", "english", "Language", "Spelling in Context", "Use a given word correctly in a sentence.", ["spelling", "context", "meaning"]),
+      topic("grammar", "english", "Grammar", "Grammar", "Fix and explain common grammar errors.", ["clause", "phrase", "agreement"]),
+      topic("punctuation", "english", "Grammar", "Punctuation", "Use capitals, stops, commas, colons, semicolons, speech marks and apostrophes.", ["comma", "apostrophe", "semicolon"]),
+      topic("parts-speech", "english", "Grammar", "Parts of Speech", "Identify nouns, verbs, adjectives, adverbs and more.", ["noun", "verb", "adverb"]),
+      topic("tenses", "english", "Grammar", "Tenses", "Recognise past, present and future tense choices.", ["past", "present", "future"]),
+      topic("sentence-structure", "english", "Grammar", "Sentence Structure", "Understand simple, compound and complex sentences.", ["clause", "compound", "complex"]),
+      topic("subject-verb", "english", "Grammar", "Subject-Verb Agreement", "Make subjects and verbs agree accurately.", ["singular", "plural", "agreement"]),
+      topic("conjunctions", "english", "Grammar", "Conjunctions", "Use coordinating and subordinating conjunctions.", ["because", "although", "however"]),
+      topic("figurative-language", "english", "Literature", "Figurative Language", "Spot similes, metaphors, personification and imagery.", ["simile", "metaphor", "personification"]),
+      topic("fiction-questions", "english", "Literature", "Fiction Text Questions", "Answer extract questions on language, structure and character.", ["extract", "narrator", "atmosphere"]),
+      topic("nonfiction-questions", "english", "Non-Fiction", "Non-Fiction Text Questions", "Analyse purpose, audience, viewpoint and language.", ["purpose", "audience", "viewpoint"]),
+      topic("rhetoric", "english", "Non-Fiction", "Rhetorical Devices", "Identify persuasive devices in speeches and arguments.", ["rhetorical question", "repetition", "triplet"]),
+      topic("argument", "english", "Non-Fiction", "Argument", "Recognise claims, reasons, counterarguments and evidence.", ["claim", "evidence", "counterargument"]),
+      topic("summarising", "english", "Non-Fiction", "Summarising Information", "Condense information into the main points.", ["main idea", "concise", "summary"]),
+      topic("compare-contrast", "english", "Non-Fiction", "Compare and Contrast", "Find similarities and differences between texts or ideas.", ["similarity", "difference", "contrast"]),
+      topic("author-study", "english", "Literature", "Author Study", "Link author choices to themes, context and reader response.", ["choice", "context", "reader"]),
+      topic("character-analysis", "english", "Literature", "Character Analysis", "Explain personality, motivation and development.", ["motivation", "trait", "development"]),
+      topic("plot-structure", "english", "Literature", "Structure of Plot", "Track exposition, conflict, climax and resolution.", ["exposition", "climax", "resolution"]),
+      topic("setting", "english", "Literature", "Setting", "Analyse place, time and atmosphere.", ["place", "time", "atmosphere"]),
+      topic("theme", "english", "Literature", "Theme", "Identify big ideas and messages in texts.", ["message", "idea", "motif"]),
+
+      topic("multiples-factors", "maths", "Number", "Multiples and Factors", "Find factors and multiples of whole numbers.", ["factor", "multiple", "common"]),
+      topic("primes", "maths", "Number", "Prime Numbers", "Identify prime, square and composite numbers.", ["prime", "composite", "square"]),
+      topic("time-calculations", "maths", "Number", "Time Calculations", "Interpret time and calculate durations.", ["duration", "timetable", "24-hour"]),
+      topic("decimals-order", "maths", "Number", "Order Decimals", "Order and compare decimal numbers.", ["decimal place", "greater", "less"]),
+      topic("rounding", "maths", "Number", "Rounding", "Round whole and decimal numbers.", ["nearest", "decimal place", "estimate"]),
+      topic("fraction-add-sub", "maths", "Number", "Add and Subtract Fractions", "Add and subtract fractions with the same denominator.", ["numerator", "denominator", "simplify"]),
+      topic("negative-numbers", "maths", "Number", "Negative Numbers", "Plot and interpret negative numbers on a number line.", ["negative", "number line", "zero"]),
+      topic("roman-numerals", "maths", "Number", "Roman Numerals", "Convert Roman numerals into ordinary numbers.", ["I", "V", "X"]),
+      topic("mixed-improper", "maths", "Number", "Mixed and Improper Fractions", "Convert between mixed numbers and improper fractions.", ["mixed number", "improper", "whole"]),
+      topic("fdp", "maths", "Number", "Fractions, Decimals and Percentages", "Convert between fractions, decimals and percentages.", ["fraction", "decimal", "percentage"]),
+      topic("percentage-amounts", "maths", "Number", "Percentage of Amounts", "Find percentages of quantities.", ["percent", "amount", "divide"]),
+      topic("fraction-amounts", "maths", "Number", "Fraction of Amounts", "Find fractions of quantities.", ["part", "whole", "denominator"]),
+      topic("percentage-compare", "maths", "Number", "One Number as a Percentage of Another", "Express one number as a percentage of another.", ["part", "whole", "percent"]),
+      topic("ratio-simplify", "maths", "Number", "Simplify Ratios", "Reduce ratios to their simplest form.", ["ratio", "common factor", "simplify"]),
+      topic("ratio-sharing", "maths", "Number", "Share in a Ratio", "Divide quantities in a given ratio.", ["share", "parts", "total"]),
+      topic("direct-proportion", "maths", "Number", "Direct Proportion", "Scale quantities in direct proportion.", ["scale", "unitary", "proportion"]),
+      topic("sequences", "maths", "Algebra", "Generate Sequence Terms", "Generate terms in arithmetic sequences.", ["term", "rule", "difference"]),
+      topic("pattern-sequences", "maths", "Algebra", "Pattern Sequences", "Generate terms from visual or pattern sequences.", ["pattern", "position", "rule"]),
+      topic("simplify-expressions", "maths", "Algebra", "Simplify Expressions", "Collect like terms in simple linear expressions.", ["like terms", "coefficient", "variable"]),
+      topic("substitution", "maths", "Algebra", "Substitution", "Substitute positive integers into expressions.", ["substitute", "value", "expression"]),
+      topic("equations", "maths", "Algebra", "One-Step and Two-Step Equations", "Solve simple equations.", ["inverse", "balance", "solution"]),
+      topic("averages", "maths", "Statistics", "Averages", "Calculate mean, median and mode.", ["mean", "median", "mode"]),
+      topic("pie-chart-angles", "maths", "Statistics", "Pie Chart Angles", "Calculate sector angles in pie charts.", ["sector", "angle", "360"]),
+      topic("interpret-pie", "maths", "Statistics", "Interpret Pie Charts", "Use pie charts to find amounts and proportions.", ["sector", "total", "proportion"]),
+      topic("line-graphs", "maths", "Statistics", "Line Graphs", "Interpret information from line graphs.", ["axis", "trend", "change"]),
+      topic("probability-language", "maths", "Statistics", "Probability Language", "Use likely, unlikely, impossible, certain and even chance.", ["likely", "certain", "impossible"]),
+      topic("probability-fraction", "maths", "Statistics", "Probability as a Fraction", "Calculate probability as favourable outcomes over total outcomes.", ["outcome", "total", "fraction"]),
+      topic("perimeter", "maths", "Geometry", "Perimeter of Polygons", "Find the distance around polygons.", ["side", "polygon", "perimeter"]),
+      topic("angle-types", "maths", "Geometry", "Angle Types", "Identify acute, right and obtuse angles.", ["acute", "right", "obtuse"]),
+      topic("coordinates", "maths", "Geometry", "Coordinates in Four Quadrants", "Plot and read coordinates in all four quadrants.", ["x-axis", "y-axis", "quadrant"]),
+      topic("area-rectangles", "maths", "Geometry", "Area of Rectangles", "Calculate rectangle area.", ["length", "width", "area"]),
+      topic("area-triangles", "maths", "Geometry", "Area of Triangles", "Calculate triangle area.", ["base", "height", "half"]),
+      topic("volume-cubes", "maths", "Geometry", "Volume of Cuboids", "Calculate volume of cuboids and cubes.", ["length", "width", "height"]),
+      topic("transformations", "maths", "Geometry", "Translations and Reflections", "Transform 2D shapes using translations and reflections.", ["translate", "reflect", "mirror line"]),
+      topic("missing-angles", "maths", "Geometry", "Missing Angles", "Find missing angles on lines, around points, triangles and quadrilaterals.", ["straight line", "triangle", "quadrilateral"]),
+      topic("radius-diameter", "maths", "Geometry", "Radius and Diameter", "Calculate diameter and radius of circles.", ["radius", "diameter", "circle"]),
+      topic("circumference", "maths", "Geometry", "Circumference", "Calculate the circumference of a circle.", ["pi", "diameter", "circumference"])
+    ];
+
+    const ENGLISH_DATA = {
+      retrieval: qset("Which detail is stated in the fiction extract?", "Mara is outside the observatory.", ["Mara is inside a classroom.", "Mara is outside the observatory.", "Mara has lost the key.", "Mara is waiting for a train."], "Retrieval means finding information directly stated in the text.", SAMPLE_PASSAGES.fiction, "Mara is outside the observatory."),
+      inference: qset("What can you infer about the key?", "It may be unusual or important.", ["It is broken.", "It may be unusual or important.", "It belongs to a teacher.", "It is made of silver."], "The warmth and secrecy suggest importance without saying it directly.", SAMPLE_PASSAGES.fiction, "The key seems important because it feels warm and secretive."),
+      vocabulary: qset("In the fiction extract, what does 'dome' most likely mean?", "A rounded roof.", ["A rounded roof.", "A locked drawer.", "A type of telescope.", "A metal key."], "Context links it to the observatory roof.", SAMPLE_PASSAGES.fiction, "rounded roof"),
+      "word-choice": qset("Choose the best word: The evidence was so ____ that everyone changed their mind.", "convincing", ["fragile", "convincing", "ordinary", "distant"], "Convincing evidence persuades people.", "", "convincing"),
+      "sentence-completion": qset("Complete the sentence: Although the path was steep, ____.", "the climbers continued steadily", ["because the climbers stopped", "the climbers continued steadily", "and the mountain", "it was very"], "The second clause must complete the contrast and make a sentence.", "", "the climbers continued steadily"),
+      "spelling-context": qset("Which sentence uses the word 'necessary' correctly?", "It is necessary to bring water on a long walk.", ["It is necesary to bring water.", "It is necessary to bring water on a long walk.", "It is necessarily to bring water.", "It is necessery bringing water."], "The spelling and grammar both have to be correct.", "", "It is necessary to bring water on a long walk."),
+      grammar: qset("Choose the grammatically correct sentence.", "Neither of the answers is correct.", ["Neither of the answers are correct.", "Neither of the answers is correct.", "Neither answers is correct.", "Neither answer are correct."], "Neither is singular here, so it takes 'is'.", "", "Neither of the answers is correct."),
+      punctuation: qset("Choose the correctly punctuated sentence.", "After lunch, we visited the museum.", ["After lunch we visited, the museum.", "After lunch, we visited the museum.", "After, lunch we visited the museum.", "After lunch we visited the museum,"], "A comma after the fronted adverbial is correct.", "", "After lunch, we visited the museum."),
+      "parts-speech": qset("What part of speech is 'quickly' in 'She quickly packed her bag'?", "Adverb", ["Noun", "Verb", "Adverb", "Preposition"], "It describes how she packed.", "", "adverb"),
+      tenses: qset("Which sentence is in the future tense?", "I will revise after dinner.", ["I revised after dinner.", "I am revising now.", "I will revise after dinner.", "I revise every day."], "Will + verb points to the future.", "", "I will revise after dinner."),
+      "sentence-structure": qset("Which sentence is complex?", "Because it rained, the match was delayed.", ["The bell rang.", "The bell rang and we left.", "Because it rained, the match was delayed.", "We waited outside."], "A complex sentence has a subordinate clause.", "", "Because it rained, the match was delayed."),
+      "subject-verb": qset("Choose the correct verb: The group of students ____ ready.", "is", ["are", "is", "were", "be"], "The head noun 'group' is singular.", "", "is"),
+      conjunctions: qset("Which word best joins the ideas? I packed a coat ____ it looked like rain.", "because", ["although", "because", "unless", "but"], "Because gives the reason.", "", "because"),
+      "figurative-language": qset("What technique is used in 'the wind whispered through the trees'?", "Personification", ["Simile", "Personification", "Hyperbole", "Alliteration"], "The wind is given a human action.", "", "personification"),
+      "fiction-questions": qset("What mood is created in the fiction extract?", "Mysterious and tense", ["Cheerful and relaxed", "Mysterious and tense", "Angry and comic", "Formal and factual"], "Rain, a locked observatory and a secretive key create mystery.", SAMPLE_PASSAGES.fiction, "mysterious and tense"),
+      "nonfiction-questions": qset("What is the main purpose of the non-fiction extract?", "To explain benefits of community gardens", ["To entertain with a story", "To explain benefits of community gardens", "To warn against gardening", "To describe one person's childhood"], "The extract presents information and benefits.", SAMPLE_PASSAGES.nonfiction, "to explain benefits"),
+      rhetoric: qset("Which device is in 'We need cleaner parks, safer streets and brighter futures'?", "Triplet", ["Metaphor", "Triplet", "Onomatopoeia", "Oxymoron"], "Three linked ideas are listed for persuasive effect.", "", "triplet"),
+      argument: qset("In an argument, what is a counterargument?", "An opposing point that the writer responds to.", ["A repeated phrase", "A made-up statistic", "An opposing point that the writer responds to.", "The final sentence only"], "A strong argument recognises and replies to other views.", "", "opposing point"),
+      summarising: qset("Which summary of the non-fiction extract is best?", "Community gardens turn unused land into spaces with social and practical benefits.", ["Gardens are always beautiful.", "Community gardens turn unused land into spaces with social and practical benefits.", "Food only grows in cities.", "Residents dislike unused land."], "A summary should cover the main idea concisely.", SAMPLE_PASSAGES.nonfiction, "Community gardens have practical and social benefits."),
+      "compare-contrast": qset("Which phrase signals contrast?", "On the other hand", ["Similarly", "Also", "On the other hand", "In addition"], "Contrast means difference or opposition.", "", "On the other hand"),
+      "author-study": qset("Why might an author repeat an image throughout a novel?", "To develop a motif or theme.", ["To waste space", "To avoid punctuation", "To develop a motif or theme.", "To change the genre"], "Repeated images can build motifs and deepen themes.", "", "to develop a motif or theme"),
+      "character-analysis": qset("Which evidence best supports that a character is nervous?", "Her hands trembled as she spoke.", ["She wore a blue coat.", "Her hands trembled as she spoke.", "The room had a window.", "It was Tuesday."], "Physical reactions can reveal feelings.", "", "Her hands trembled as she spoke."),
+      "plot-structure": qset("What is usually the climax of a plot?", "The most intense turning point.", ["The opening description", "The list of characters", "The most intense turning point.", "The title page"], "The climax is where tension reaches a high point.", "", "the turning point"),
+      setting: qset("Which detail most clearly establishes setting?", "At midnight, the harbour lights shone across the water.", ["She felt worried.", "At midnight, the harbour lights shone across the water.", "He wanted to win.", "The idea was important."], "Time and place are both shown.", "", "midnight at the harbour"),
+      theme: qset("What is a theme?", "A big idea or message in a text.", ["A character's name", "A spelling rule", "A big idea or message in a text.", "Only the ending"], "Themes are repeated ideas such as courage, friendship or power.", "", "big idea or message")
+    };
+
+    const store = loadStore();
+    let state = {
+      subject: "all",
+      unit: "all",
+      topic: "all",
+      mode: "mc",
+      count: 15,
+      difficulty: 7
+    };
+    let game = null;
+    let spelling = {
+      words: [],
+      current: "",
+      mode: "practice",
+      timer: null,
+      seconds: 60,
+      score: 0,
+      streak: 0,
+      attempts: 0,
+      p1: 0,
+      p2: 0,
+      turn: 1,
+      round: 0,
+      net: null
+    };
+    let online = {
+      peer: null,
+      conn: null,
+      role: "",
+      code: "",
+      title: "",
+      mode: "mc",
+      questions: [],
+      index: 0,
+      score: 0,
+      friendScore: 0,
+      answered: false,
+      friendAnswered: false,
+      friendCorrect: null,
+      finished: false,
+      presetTopicId: null
+    };
+    let voices = [];
+
+    function topic(id, subject, unit, title, description, terms) {
+      return { id, subject, unit, title, description, terms };
+    }
+
+    function qset(prompt, answer, options, explanation, passage, typeAnswer) {
+      return { prompt, answer, options, explanation, passage, typeAnswer: typeAnswer || answer };
+    }
+
+    function $(id) { return document.getElementById(id); }
+    function esc(value) {
+      return String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    }
+    function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function choice(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function shuffle(arr) {
+      const out = arr.slice();
+      for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [out[i], out[j]] = [out[j], out[i]];
+      }
+      return out;
+    }
+    function uniq(arr) { return [...new Set(arr.map(String))]; }
+    function gcd(a, b) {
+      a = Math.abs(a); b = Math.abs(b);
+      while (b) [a, b] = [b, a % b];
+      return a || 1;
+    }
+    function simplify(n, d) {
+      const g = gcd(n, d);
+      return `${n / g}/${d / g}`;
+    }
+    function normalise(value) {
+      return String(value ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function loadStore() {
+      const fallback = { topicStats: {}, best: {}, spelling: { words: DEFAULT_WORDS, best: 0, streak: 0 }, results: [] };
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {};
+        return {
+          topicStats: saved.topicStats || fallback.topicStats,
+          best: saved.best || fallback.best,
+          spelling: { ...fallback.spelling, ...(saved.spelling || {}) },
+          results: saved.results || fallback.results
+        };
+      } catch {
+        return fallback;
+      }
+    }
+
+    function saveStore() {
+      localStorage.setItem(STORE_KEY, JSON.stringify(store));
+      updateMetrics();
+    }
+
+    function init() {
+      bindEvents();
+      spelling.words = parseWords(store.spelling?.words?.join("\n") || DEFAULT_WORDS.join("\n"));
+      $("wordInput").value = spelling.words.join("\n");
+      populateFilters();
+      renderDashboard();
+      updateMetrics();
+      renderSpellingStats();
+      loadVoices();
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      }
+    }
+
+    function bindEvents() {
+      document.querySelectorAll("[data-nav]").forEach(btn => {
+        btn.addEventListener("click", () => showScreen(btn.dataset.nav));
+      });
+      document.querySelectorAll("[data-action]").forEach(btn => {
+        btn.addEventListener("click", () => handleAction(btn.dataset.action));
+      });
+      document.querySelectorAll("[data-spelling]").forEach(btn => {
+        btn.addEventListener("click", () => handleSpellingAction(btn.dataset.spelling));
+      });
+      ["subjectFilter", "unitFilter", "topicFilter", "modeFilter", "countFilter", "difficultyFilter"].forEach(id => {
+        $(id).addEventListener("change", syncControls);
+      });
+    }
+
+    function showScreen(name) {
+      stopGameTimers();
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      const target = name === "spelling" ? "spellingScreen" : name === "online" ? "onlineScreen" : name === "result" ? "resultScreen" : name === "game" ? "gameScreen" : "homeScreen";
+      $(target).classList.add("active");
+      if (name === "home") renderDashboard();
+      if (name === "online") renderOnlineLobby();
+      if (name === "spelling") {
+        renderSpellingStats();
+        if (!$("spellingPlay").innerHTML.trim()) renderSpellingHome();
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function handleAction(action) {
+      if (action === "startFocused") startFocused();
+      if (action === "randomTopic") startRandom();
+      if (action === "exam") startExam();
+      if (action === "weak") startWeakReplay();
+      if (action === "spellingQuick") showScreen("spelling");
+      if (action === "topicVs") openTopicVs();
+      if (action === "clearStats") clearStats();
+    }
+
+    function syncControls(ev) {
+      state.subject = $("subjectFilter").value;
+      state.unit = $("unitFilter").value;
+      state.topic = $("topicFilter").value;
+      state.mode = $("modeFilter").value;
+      state.count = Number($("countFilter").value);
+      state.difficulty = Number($("difficultyFilter").value);
+      if (ev?.target?.id === "subjectFilter") {
+        state.unit = "all";
+        state.topic = "all";
+        populateFilters();
+      } else if (ev?.target?.id === "unitFilter") {
+        state.topic = "all";
+        populateTopicFilter();
+      }
+      renderDashboard();
+    }
+
+    function populateFilters() {
+      const units = ["all", ...uniq(TOPICS.filter(t => state.subject === "all" || t.subject === state.subject).map(t => t.unit)).sort()];
+      $("unitFilter").innerHTML = units.map(u => `<option value="${esc(u)}">${u === "all" ? "All units" : esc(u)}</option>`).join("");
+      $("unitFilter").value = state.unit;
+      populateTopicFilter();
+    }
+
+    function populateTopicFilter() {
+      const topics = filteredTopics(false);
+      $("topicFilter").innerHTML = `<option value="all">All matching topics</option>` + topics.map(t => `<option value="${t.id}">${esc(t.title)}</option>`).join("");
+      $("topicFilter").value = TOPICS.some(t => t.id === state.topic) ? state.topic : "all";
+    }
+
+    function filteredTopics(includeTopic = true) {
+      return TOPICS.filter(t => {
+        if (state.subject !== "all" && t.subject !== state.subject) return false;
+        if (state.unit !== "all" && t.unit !== state.unit) return false;
+        if (includeTopic && state.topic !== "all" && t.id !== state.topic) return false;
+        return true;
+      });
+    }
+
+    function renderDashboard() {
+      const topics = filteredTopics(true);
+      $("topicCountLabel").textContent = `${topics.length} matching topics. Every card can launch a focused activity.`;
+      $("topicGrid").innerHTML = topics.map(t => {
+        const stats = store.topicStats[t.id] || { attempts: 0, correct: 0, mistakes: 0 };
+        const acc = stats.attempts ? Math.round((stats.correct / stats.attempts) * 100) : 0;
+        return `
+          <article class="topic-card">
+            <header>
+              <h4>${esc(t.title)}</h4>
+              <span class="pill ${t.subject}">${t.subject === "maths" ? "Maths" : "English"}</span>
+            </header>
+            <p>${esc(t.description)}</p>
+            <div class="pill-row">
+              <span class="pill">${esc(t.unit)}</span>
+              <span class="pill ${stats.mistakes ? "hot" : "good"}">${stats.attempts ? `${acc}% accuracy` : "new"}</span>
+              <span class="pill">${stats.mistakes || 0} misses</span>
+            </div>
+            <div class="topic-actions">
+              <button class="btn primary" type="button" onclick="startTopic('${t.id}', state.mode)">Practise</button>
+              <button class="btn" type="button" onclick="startTopic('${t.id}', 'flash')">Flashcards</button>
+              <button class="btn" type="button" onclick="startTopic('${t.id}', 'match')">Match</button>
+              <button class="btn warn" type="button" onclick="startTopic('${t.id}', 'speed')">Speed</button>
+              <button class="btn primary" type="button" onclick="startTopicOnline('${t.id}')">Online VS</button>
+            </div>
+          </article>`;
+      }).join("") || `<div class="empty">No topics match those filters.</div>`;
+      updateMetrics();
+    }
+
+    function updateMetrics() {
+      $("metricTopics").textContent = TOPICS.length;
+      const stats = Object.values(store.topicStats || {});
+      $("metricAttempts").textContent = stats.reduce((sum, s) => sum + (s.attempts || 0), 0);
+      $("metricWeak").textContent = weakTopicIds().length;
+    }
+
+    function startFocused() {
+      const topics = filteredTopics(true);
+      if (!topics.length) return toast("No topics match those filters.");
+      startSession({ mode: state.mode, topics, count: state.count, title: sessionTitle(state.mode, topics), timed: state.mode === "speed" });
+    }
+
+    function startRandom() {
+      const topic = choice(filteredTopics(false));
+      startTopic(topic.id, choice(["mc", "type", "flash", "match", "speed", "elimination"]));
+    }
+
+    function startTopic(topicId, mode) {
+      const topicObj = TOPICS.find(t => t.id === topicId);
+      if (!topicObj) return;
+      startSession({ mode, topics: [topicObj], count: state.count, title: `${modeName(mode)}: ${topicObj.title}` });
+    }
+
+    function openTopicVs() {
+      online.presetTopicId = null;
+      renderOnlineLobby();
+      showScreen("online");
+    }
+
+    function startTopicOnline(topicId) {
+      online.presetTopicId = topicId;
+      renderOnlineLobby();
+      showScreen("online");
+    }
+
+    function startExam() {
+      const topics = filteredTopics(false);
+      startSession({ mode: "exam", topics, count: 30, title: "Timed Mixed GL Exam Simulator", examSeconds: 20 * 60 });
+    }
+
+    function startWeakReplay() {
+      const ids = weakTopicIds();
+      if (!ids.length) {
+        toast("No weak topics yet. Play a few rounds first.");
+        return;
+      }
+      const topics = ids.map(id => TOPICS.find(t => t.id === id)).filter(Boolean);
+      startSession({ mode: "mc", topics, count: Math.min(25, Math.max(10, topics.length * 3)), title: "Weak Topic Replay" });
+    }
+
+    function weakTopicIds() {
+      return Object.entries(store.topicStats || {})
+        .filter(([, s]) => (s.mistakes || 0) > 0)
+        .sort((a, b) => (b[1].mistakes || 0) - (a[1].mistakes || 0))
+        .slice(0, 12)
+        .map(([id]) => id);
+    }
+
+    function startSession(config) {
+      stopGameTimers();
+      const mode = config.mode;
+      const questions = mode === "match"
+        ? buildMatchItems(config.topics)
+        : mode === "flash"
+          ? buildFlashcards(config.topics, config.count)
+          : buildQuestions(config.topics, config.count, mode);
+      if (!questions.length) return toast("This topic needs questions. Try another filter.");
+      game = {
+        mode,
+        title: config.title,
+        topics: config.topics,
+        questions,
+        index: 0,
+        score: 0,
+        attempts: 0,
+        correct: 0,
+        start: Date.now(),
+        answered: false,
+        selected: [],
+        matched: 0,
+        lives: 3,
+        seconds: config.examSeconds || 10,
+        examSeconds: config.examSeconds || 0,
+        perQuestionSeconds: mode === "speed" ? 10 : 0,
+        timer: null
+      };
+      showScreen("game");
+      renderGame();
+      if (game.examSeconds) startExamTimer();
+    }
+
+    function buildQuestions(topics, count, mode) {
+      const out = [];
+      for (let i = 0; i < count; i++) {
+        const t = topics[i % topics.length];
+        out.push(makeQuestion(t, mode, i));
+      }
+      return shuffle(out);
+    }
+
+    function buildFlashcards(topics, count) {
+      const cards = [];
+      topics.forEach(t => {
+        t.terms.forEach(term => cards.push({
+          topicId: t.id,
+          subject: t.subject,
+          unit: t.unit,
+          topic: t.title,
+          front: term,
+          back: explainTerm(t, term),
+          explanation: t.description
+        }));
+        cards.push({
+          topicId: t.id,
+          subject: t.subject,
+          unit: t.unit,
+          topic: t.title,
+          front: t.title,
+          back: t.description,
+          explanation: `Unit: ${t.unit}`
+        });
+      });
+      return shuffle(cards).slice(0, Math.min(cards.length, count));
+    }
+
+    function buildMatchItems(topics) {
+      const pairs = [];
+      topics.forEach(t => {
+        pairs.push({ topicId: t.id, left: t.title, right: t.description, topic: t.title, subject: t.subject, unit: t.unit });
+        t.terms.slice(0, 2).forEach(term => pairs.push({ topicId: t.id, left: term, right: explainTerm(t, term), topic: t.title, subject: t.subject, unit: t.unit }));
+      });
+      return shuffle(pairs).slice(0, 8);
+    }
+
+    function makeQuestion(t, mode, index) {
+      if (t.subject === "maths") return makeMathQuestion(t, index);
+      return makeEnglishQuestion(t, index);
+    }
+
+    function makeEnglishQuestion(t, index) {
+      const base = ENGLISH_DATA[t.id] || qset(`What is ${t.title}?`, t.description, [t.description, "A type of calculator", "A spelling mistake", "A shape transformation"], t.description, "", t.description);
+      const options = shuffle(base.options || [base.answer, ...t.terms]);
+      return {
+        id: `${t.id}-${index}-${Date.now()}`,
+        topicId: t.id,
+        subject: t.subject,
+        unit: t.unit,
+        topic: t.title,
+        passage: base.passage || "",
+        prompt: base.prompt,
+        answer: base.answer,
+        accepted: [base.answer, base.typeAnswer],
+        options,
+        explanation: base.explanation
+      };
+    }
+
+    function makeMathQuestion(t, index) {
+      const gen = MATH_GENERATORS[t.id] || (() => genericMath(t));
+      const q = gen(Number(state.difficulty), index);
+      return {
+        id: `${t.id}-${index}-${Date.now()}`,
+        topicId: t.id,
+        subject: t.subject,
+        unit: t.unit,
+        topic: t.title,
+        passage: q.passage || "",
+        prompt: q.prompt,
+        answer: String(q.answer),
+        accepted: (q.accepted || [q.answer]).map(String),
+        options: makeOptions(String(q.answer), q.options || q.distractors || []),
+        explanation: q.explanation || t.description
+      };
+    }
+
+    function makeOptions(answer, distractors) {
+      const options = uniq([answer, ...distractors.map(String)]);
+      while (options.length < 4) {
+        const n = Number(answer);
+        options.push(Number.isFinite(n) ? String(n + rand(-10, 10) || n + 3) : choice(["Cannot be determined", "None", "All of them", "Sometimes"]));
+      }
+      return shuffle(uniq(options).slice(0, 4).includes(answer) ? uniq(options).slice(0, 4) : [answer, ...uniq(options).slice(0, 3)]);
+    }
+
+    const MATH_GENERATORS = {
+      "multiples-factors": () => {
+        const n = rand(12, 48);
+        const fs = factors(n);
+        return { prompt: `Which number is a factor of ${n}?`, answer: choice(fs), distractors: [n + 1, n - 1, n + 2], explanation: `Factors divide ${n} exactly: ${fs.join(", ")}.` };
+      },
+      primes: () => {
+        const n = choice([2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]);
+        return { prompt: `Which statement about ${n} is true?`, answer: `${n} is prime`, distractors: [`${n} is even and greater than 2`, `${n} has exactly 3 factors`, `${n} is a square number`], explanation: "A prime has exactly two factors: 1 and itself." };
+      },
+      "time-calculations": () => {
+        const h = rand(8, 15), m = choice([0, 5, 10, 15, 20, 30, 40, 45, 50]);
+        const add = choice([35, 45, 55, 70, 85, 95, 110]);
+        const start = h * 60 + m, end = start + add;
+        return { prompt: `A lesson starts at ${fmtTime(start)} and lasts ${add} minutes. What time does it end?`, answer: fmtTime(end), distractors: [fmtTime(end + 10), fmtTime(end - 10), fmtTime(start + add + 30)], explanation: `Add ${add} minutes to ${fmtTime(start)}.` };
+      },
+      "decimals-order": () => {
+        const nums = [rand(1, 9) / 10 + rand(0, 9) / 100, rand(1, 9) / 10 + rand(0, 9) / 100, rand(1, 9) / 10 + rand(0, 9) / 100].map(n => n.toFixed(2));
+        const sorted = nums.slice().sort((a, b) => Number(a) - Number(b)).join(", ");
+        return { prompt: `Put these decimals in ascending order: ${nums.join(", ")}`, answer: sorted, distractors: [nums.join(", "), nums.slice().reverse().join(", "), nums.slice().sort().reverse().join(", ")], explanation: "Compare tenths first, then hundredths." };
+      },
+      rounding: () => {
+        const n = (rand(100, 999) / 10).toFixed(1);
+        const ans = Math.round(Number(n));
+        return { prompt: `Round ${n} to the nearest whole number.`, answer: ans, distractors: [Math.floor(Number(n)), Math.ceil(Number(n)) + 1, ans + 10], explanation: "Look at the tenths digit to decide whether to round up." };
+      },
+      "fraction-add-sub": () => {
+        const d = rand(5, 12), a = rand(1, d - 2), b = rand(1, d - a - 1);
+        return { prompt: `Calculate ${a}/${d} + ${b}/${d}. Give your answer simplified if possible.`, answer: simplify(a + b, d), distractors: [`${a + b}/${d * 2}`, `${a * b}/${d}`, `${Math.abs(a - b)}/${d}`], explanation: "When denominators match, add the numerators and keep the denominator." };
+      },
+      "negative-numbers": () => {
+        const a = rand(-12, 4), b = rand(1, 12);
+        return { prompt: `Calculate ${a} + ${b}.`, answer: a + b, distractors: [a - b, Math.abs(a + b), b - a], explanation: "Move right on the number line when adding a positive number." };
+      },
+      "roman-numerals": () => {
+        const n = choice([14, 19, 24, 39, 44, 58, 76, 91, 126, 244]);
+        return { prompt: `Convert ${toRoman(n)} to an ordinary number.`, answer: n, distractors: [n + 1, n - 5, n + 10], explanation: "Roman numerals combine values, with smaller before larger meaning subtract." };
+      },
+      "mixed-improper": () => {
+        const whole = rand(2, 7), d = rand(3, 9), n = rand(1, d - 1);
+        return { prompt: `Convert ${whole} ${n}/${d} to an improper fraction.`, answer: `${whole * d + n}/${d}`, distractors: [`${whole + n}/${d}`, `${whole * n}/${d}`, `${whole * d - n}/${d}`], explanation: "Multiply the whole number by the denominator, then add the numerator." };
+      },
+      fdp: () => {
+        const item = choice([{ f: "1/2", d: "0.5", p: "50%" }, { f: "1/4", d: "0.25", p: "25%" }, { f: "3/4", d: "0.75", p: "75%" }, { f: "1/5", d: "0.2", p: "20%" }, { f: "2/5", d: "0.4", p: "40%" }]);
+        return { prompt: `Convert ${item.f} to a percentage.`, answer: item.p, distractors: [item.d, "10%", "80%"], explanation: "Convert the fraction to hundredths or a decimal, then to percent." };
+      },
+      "percentage-amounts": () => {
+        const pct = choice([10, 20, 25, 30, 40, 50, 75]);
+        const amount = rand(4, 20) * 10;
+        return { prompt: `Find ${pct}% of ${amount}.`, answer: amount * pct / 100, distractors: [amount + pct, amount - pct, Math.round(amount / pct)], explanation: `${pct}% means ${pct}/100 of the amount.` };
+      },
+      "fraction-amounts": () => {
+        const d = choice([3, 4, 5, 6, 8]), n = rand(1, d - 1), amount = d * rand(4, 15);
+        return { prompt: `Find ${n}/${d} of ${amount}.`, answer: amount / d * n, distractors: [amount / d, amount * n, amount - d], explanation: "Divide by the denominator, then multiply by the numerator." };
+      },
+      "percentage-compare": () => {
+        const whole = rand(5, 18) * 10;
+        const pct = choice([10, 20, 25, 40, 50, 75]);
+        const part = whole * pct / 100;
+        return { prompt: `Express ${part} as a percentage of ${whole}.`, answer: `${pct}%`, distractors: [`${part}%`, `${100 - pct}%`, `${pct / 10}%`], explanation: "part / whole x 100 gives the percentage." };
+      },
+      "ratio-simplify": () => {
+        const a = rand(2, 8), b = rand(2, 8), k = rand(2, 6);
+        return { prompt: `Simplify the ratio ${a * k}:${b * k}.`, answer: `${a}:${b}`, distractors: [`${a * k}:${b}`, `${a}:${b * k}`, `${b}:${a}`], explanation: `Divide both sides by ${k}.` };
+      },
+      "ratio-sharing": () => {
+        const a = rand(2, 5), b = rand(2, 6), total = (a + b) * rand(5, 14);
+        return { prompt: `Share ${total} in the ratio ${a}:${b}. What is the first share?`, answer: total / (a + b) * a, distractors: [total / (a + b) * b, total / a, total - a], explanation: "Find one part by dividing by the total number of parts." };
+      },
+      "direct-proportion": () => {
+        const n = rand(2, 6), cost = n * rand(3, 9), target = rand(7, 14);
+        return { prompt: `${n} notebooks cost AED ${cost}. At the same rate, how much do ${target} notebooks cost?`, answer: `AED ${cost / n * target}`, distractors: [`AED ${cost + target}`, `AED ${cost * target}`, `AED ${target - n}`], explanation: "Find the cost of one notebook, then multiply." };
+      },
+      sequences: () => {
+        const start = rand(1, 10), diff = rand(2, 9);
+        return { prompt: `Find the next term: ${start}, ${start + diff}, ${start + diff * 2}, ${start + diff * 3}, ...`, answer: start + diff * 4, distractors: [start + diff * 3, start + diff * 5, start + diff * 4 + 1], explanation: `The sequence increases by ${diff}.` };
+      },
+      "pattern-sequences": () => {
+        const a = rand(2, 5), b = rand(1, 6), pos = rand(5, 10);
+        return { prompt: `A pattern has ${a}n + ${b} tiles at position n. How many tiles are at position ${pos}?`, answer: a * pos + b, distractors: [a + pos + b, a * (pos - 1) + b, a * pos], explanation: `Substitute n = ${pos}.` };
+      },
+      "simplify-expressions": () => {
+        const a = rand(2, 8), b = rand(2, 8), c = rand(1, 9);
+        return { prompt: `Simplify ${a}x + ${b}x + ${c}.`, answer: `${a + b}x + ${c}`, distractors: [`${a + b + c}x`, `${a * b}x + ${c}`, `${a + b} + ${c}x`], explanation: "Collect the like x terms." };
+      },
+      substitution: () => {
+        const a = rand(2, 6), b = rand(1, 8), x = rand(2, 9);
+        return { prompt: `If x = ${x}, find ${a}x + ${b}.`, answer: a * x + b, distractors: [a + x + b, a * (x + b), a * x - b], explanation: `Calculate ${a} x ${x} + ${b}.` };
+      },
+      equations: () => {
+        const x = rand(2, 12), a = rand(2, 6), b = rand(1, 10);
+        return { prompt: `Solve ${a}x + ${b} = ${a * x + b}.`, answer: x, distractors: [x + 1, x - 1, a * x], explanation: "Use inverse operations: subtract first, then divide." };
+      },
+      averages: () => {
+        const nums = [rand(2, 12), rand(2, 12), rand(2, 12), rand(2, 12)];
+        const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+        return { prompt: `Find the mean of ${nums.join(", ")}.`, answer: mean, distractors: [Math.max(...nums), Math.min(...nums), nums[0] + nums[1]], explanation: "Add the values and divide by how many there are." };
+      },
+      "pie-chart-angles": () => {
+        const pct = choice([10, 20, 25, 30, 40, 50]);
+        return { prompt: `A sector represents ${pct}% of a pie chart. What angle should it have?`, answer: `${pct / 100 * 360} degrees`, distractors: [`${pct} degrees`, `${pct * 2} degrees`, `${360 - pct} degrees`], explanation: "A full pie chart is 360 degrees." };
+      },
+      "interpret-pie": () => {
+        const total = rand(5, 12) * 10, pct = choice([20, 25, 40, 50]);
+        return { prompt: `In a pie chart of ${total} students, ${pct}% chose football. How many students is that?`, answer: total * pct / 100, distractors: [pct, total - pct, total / pct], explanation: "Find the percentage of the total." };
+      },
+      "line-graphs": () => {
+        const start = rand(10, 30), end = start + rand(5, 20);
+        return { prompt: `A line graph shows a value rising from ${start} to ${end}. What is the increase?`, answer: end - start, distractors: [end + start, end, start - end], explanation: "Increase is final value minus starting value." };
+      },
+      "probability-language": () => {
+        return { prompt: "A standard dice landing on 7 is best described as:", answer: "impossible", distractors: ["certain", "likely", "even chance"], explanation: "A standard dice only has 1 to 6." };
+      },
+      "probability-fraction": () => {
+        const colour = choice(["red", "blue", "green"]);
+        const good = rand(2, 6), bad = rand(3, 8);
+        return { prompt: `A bag has ${good} ${colour} counters and ${bad} other counters. What is P(${colour})?`, answer: simplify(good, good + bad), distractors: [`${good}/${bad}`, `${bad}/${good + bad}`, `${good + bad}/${good}`], explanation: "Probability is favourable outcomes over total outcomes." };
+      },
+      perimeter: () => {
+        const l = rand(4, 18), w = rand(3, 12);
+        return { prompt: `Find the perimeter of a rectangle with length ${l} cm and width ${w} cm.`, answer: `${2 * (l + w)} cm`, distractors: [`${l * w} cm`, `${l + w} cm`, `${2 * l + w} cm`], explanation: "Perimeter is the total distance around the shape." };
+      },
+      "angle-types": () => {
+        const angle = choice([25, 45, 90, 110, 135]);
+        const ans = angle < 90 ? "acute" : angle === 90 ? "right" : "obtuse";
+        return { prompt: `What type of angle is ${angle} degrees?`, answer: ans, distractors: ["straight", "reflex", ans === "acute" ? "obtuse" : "acute"], explanation: "Acute is less than 90, right is 90, obtuse is between 90 and 180." };
+      },
+      coordinates: () => {
+        const x = rand(-6, 6), y = rand(-6, 6);
+        return { prompt: `Which coordinate has x = ${x} and y = ${y}?`, answer: `(${x}, ${y})`, distractors: [`(${y}, ${x})`, `(${-x}, ${y})`, `(${x}, ${-y})`], explanation: "Coordinates are written (x, y)." };
+      },
+      "area-rectangles": () => {
+        const l = rand(4, 16), w = rand(3, 12);
+        return { prompt: `Find the area of a rectangle ${l} cm by ${w} cm.`, answer: `${l * w} cm squared`, distractors: [`${2 * (l + w)} cm squared`, `${l + w} cm squared`, `${l * w * 2} cm squared`], explanation: "Rectangle area = length x width." };
+      },
+      "area-triangles": () => {
+        const b = rand(4, 16), h = rand(4, 14);
+        return { prompt: `Find the area of a triangle with base ${b} cm and height ${h} cm.`, answer: `${b * h / 2} cm squared`, distractors: [`${b * h} cm squared`, `${b + h} cm squared`, `${b * h * 2} cm squared`], explanation: "Triangle area = base x height / 2." };
+      },
+      "volume-cubes": () => {
+        const l = rand(2, 8), w = rand(2, 8), h = rand(2, 8);
+        return { prompt: `Find the volume of a cuboid ${l} cm by ${w} cm by ${h} cm.`, answer: `${l * w * h} cm cubed`, distractors: [`${l + w + h} cm cubed`, `${2 * (l + w + h)} cm cubed`, `${l * w} cm cubed`], explanation: "Volume = length x width x height." };
+      },
+      transformations: () => {
+        const x = rand(-4, 4), y = rand(-4, 4), dx = rand(-3, 3), dy = rand(-3, 3);
+        return { prompt: `Translate point (${x}, ${y}) by vector (${dx}, ${dy}).`, answer: `(${x + dx}, ${y + dy})`, distractors: [`(${x - dx}, ${y - dy})`, `(${x + dy}, ${y + dx})`, `(${dx}, ${dy})`], explanation: "Add the vector to the x and y coordinates." };
+      },
+      "missing-angles": () => {
+        const a = rand(35, 145);
+        return { prompt: `Two angles on a straight line are ${a} degrees and x. Find x.`, answer: `${180 - a} degrees`, distractors: [`${a} degrees`, `${360 - a} degrees`, `${90 - a} degrees`], explanation: "Angles on a straight line add to 180 degrees." };
+      },
+      "radius-diameter": () => {
+        const r = rand(3, 15);
+        return { prompt: `A circle has radius ${r} cm. What is its diameter?`, answer: `${2 * r} cm`, distractors: [`${r / 2} cm`, `${r + 2} cm`, `${r * r} cm`], explanation: "Diameter = 2 x radius." };
+      },
+      circumference: () => {
+        const d = rand(4, 18);
+        return { prompt: `Using pi = 3.14, find the circumference of a circle with diameter ${d} cm.`, answer: `${(3.14 * d).toFixed(2)} cm`, distractors: [`${(3.14 * d / 2).toFixed(2)} cm`, `${(d * d).toFixed(2)} cm`, `${(2 * d).toFixed(2)} cm`], explanation: "Circumference = pi x diameter." };
+      }
+    };
+
+    function factors(n) {
+      const out = [];
+      for (let i = 1; i <= n; i++) if (n % i === 0) out.push(i);
+      return out;
+    }
+
+    function fmtTime(minutes) {
+      const h = Math.floor(minutes / 60) % 24;
+      const m = minutes % 60;
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    }
+
+    function toRoman(num) {
+      const map = [["M", 1000], ["CM", 900], ["D", 500], ["CD", 400], ["C", 100], ["XC", 90], ["L", 50], ["XL", 40], ["X", 10], ["IX", 9], ["V", 5], ["IV", 4], ["I", 1]];
+      let out = "";
+      for (const [r, v] of map) while (num >= v) { out += r; num -= v; }
+      return out;
+    }
+
+    function genericMath(t) {
+      return { prompt: `Which key idea belongs to ${t.title}?`, answer: t.terms[0], distractors: t.terms.slice(1).concat(["metaphor", "audience"]), explanation: t.description };
+    }
+
+    function explainTerm(t, term) {
+      const map = {
+        quotation: "Exact words copied from a text as evidence.",
+        evidence: "Proof from a text, diagram or calculation.",
+        detail: "A specific piece of information.",
+        inference: "A conclusion based on clues and evidence.",
+        synonym: "A word with a similar meaning.",
+        connotation: "The feeling or idea a word suggests.",
+        comma: "A punctuation mark that separates parts of a sentence.",
+        apostrophe: "Shows possession or missing letters.",
+        semicolon: "Links closely related independent clauses.",
+        noun: "A person, place, thing or idea.",
+        verb: "A word for an action, state or occurrence.",
+        adverb: "A word that describes a verb, adjective or another adverb.",
+        simile: "A comparison using like or as.",
+        metaphor: "A direct comparison saying one thing is another.",
+        personification: "Giving human qualities to non-human things.",
+        factor: "A number that divides another number exactly.",
+        multiple: "A number in a times table.",
+        prime: "A number with exactly two factors.",
+        numerator: "The top number in a fraction.",
+        denominator: "The bottom number in a fraction.",
+        ratio: "A comparison of quantities.",
+        mean: "The total divided by how many values there are.",
+        median: "The middle value when data is ordered.",
+        mode: "The most common value.",
+        acute: "An angle less than 90 degrees.",
+        right: "An angle exactly 90 degrees.",
+        obtuse: "An angle between 90 and 180 degrees.",
+        radius: "Distance from the centre of a circle to the edge.",
+        diameter: "Distance across a circle through the centre.",
+        circumference: "Distance around a circle."
+      };
+      return map[term] || `${term} is a key idea in ${t.title}: ${t.description}`;
+    }
+
+    function renderGame() {
+      if (!game) return;
+      $("gameTitle").textContent = game.title || modeName(game.mode);
+      $("gameSubtitle").textContent = game.mode === "exam"
+        ? "Mixed timed practice across the assessment list."
+        : game.topics.map(t => t.title).slice(0, 3).join(", ") + (game.topics.length > 3 ? " and more" : "");
+      renderGameStats();
+      const progress = game.mode === "match"
+        ? (game.matched / game.questions.length) * 100
+        : (game.index / game.questions.length) * 100;
+      $("gameProgress").style.width = `${Math.min(100, progress)}%`;
+
+      if (game.mode === "flash") return renderFlashcard();
+      if (game.mode === "match") return renderMatch();
+      renderQuestion();
+    }
+
+    function renderGameStats() {
+      const total = game.mode === "match" ? game.questions.length : game.questions.length;
+      const left = game.mode === "match" ? total - game.matched : total - game.index;
+      const accuracy = game.attempts ? Math.round((game.correct / game.attempts) * 100) : 0;
+      const timerLabel = game.examSeconds ? fmtClock(game.seconds) : game.perQuestionSeconds ? `${game.seconds}s` : `${Math.round((Date.now() - game.start) / 1000)}s`;
+      $("gameStats").innerHTML = `
+        <div class="stat"><b>${game.score}</b><span>score</span></div>
+        <div class="stat"><b>${accuracy}%</b><span>accuracy</span></div>
+        <div class="stat"><b>${left}</b><span>remaining</span></div>
+        <div class="stat"><b>${game.mode === "elimination" ? game.lives : timerLabel}</b><span>${game.mode === "elimination" ? "lives" : "timer"}</span></div>
+      `;
+    }
+
+    function renderQuestion() {
+      stopPerQuestionTimer();
+      const q = game.questions[game.index];
+      if (!q) return finishGame();
+      game.answered = false;
+      const wantsType = game.mode === "type" || (game.mode === "exam" && game.index % 5 === 4);
+      $("gameArea").innerHTML = `
+        <div class="pill-row">
+          <span class="pill ${q.subject}">${q.subject}</span>
+          <span class="pill">${esc(q.unit)}</span>
+          <span class="pill">${esc(q.topic)}</span>
+          <span class="pill">Q${game.index + 1}/${game.questions.length}</span>
+        </div>
+        ${q.passage ? `<div class="passage">${esc(q.passage)}</div>` : ""}
+        <div class="prompt">${esc(q.prompt)}</div>
+        ${wantsType ? renderTypeInput() : renderOptions(q)}
+        <div id="feedback" class="reveal hidden"></div>
+      `;
+      if (wantsType) $("answerInput").focus();
+      if (game.perQuestionSeconds) startPerQuestionTimer();
+    }
+
+    function renderTypeInput() {
+      return `
+        <div class="answer-box">
+          <input id="answerInput" autocomplete="off" placeholder="Type your answer">
+          <button class="btn primary" type="button" onclick="submitTypedAnswer()">Check</button>
+        </div>`;
+    }
+
+    function renderOptions(q) {
+      return `<div class="options">${q.options.map((opt, i) => `<button class="btn option" type="button" onclick="submitOption(${i})">${esc(opt)}</button>`).join("")}</div>`;
+    }
+
+    function submitOption(index) {
+      if (game.answered) return;
+      const q = game.questions[game.index];
+      const selected = q.options[index];
+      const correct = normalise(selected) === normalise(q.answer);
+      document.querySelectorAll(".option").forEach(btn => {
+        const val = btn.textContent.trim();
+        btn.disabled = true;
+        if (normalise(val) === normalise(q.answer)) btn.classList.add("correct");
+        if (val === selected && !correct) btn.classList.add("wrong");
+      });
+      answerQuestion(correct, selected);
+    }
+
+    function submitTypedAnswer() {
+      if (game.answered) return;
+      const q = game.questions[game.index];
+      const typed = $("answerInput").value;
+      const correct = q.accepted.some(ans => normalise(ans) === normalise(typed));
+      answerQuestion(correct, typed);
+    }
+
+    function answerQuestion(correct, selected) {
+      game.answered = true;
+      game.attempts++;
+      if (correct) {
+        game.score += game.mode === "speed" ? 2 : 1;
+        game.correct++;
+      } else if (game.mode === "elimination") {
+        game.lives--;
+      }
+      const q = game.questions[game.index];
+      saveTopicAttempt(q.topicId, correct);
+      const feedback = $("feedback");
+      feedback.classList.remove("hidden");
+      feedback.innerHTML = `
+        <b>${correct ? "Correct" : "Not quite"}.</b>
+        ${correct ? "" : ` Correct answer: <b>${esc(q.answer)}</b>.`}
+        <div>${esc(q.explanation)}</div>
+        <div class="wide-actions"><button class="btn primary" type="button" onclick="nextQuestion()">Next</button></div>
+      `;
+      renderGameStats();
+      if (!correct && game.mode === "elimination" && game.lives <= 0) {
+        setTimeout(finishGame, 850);
+      }
+    }
+
+    function nextQuestion() {
+      if (!game) return;
+      game.index++;
+      if (game.index >= game.questions.length) finishGame();
+      else renderGame();
+    }
+
+    function renderFlashcard() {
+      const card = game.questions[game.index];
+      if (!card) return finishGame();
+      const flipped = Boolean(game.flipped);
+      $("gameArea").innerHTML = `
+        <div class="pill-row">
+          <span class="pill ${card.subject}">${card.subject}</span>
+          <span class="pill">${esc(card.unit)}</span>
+          <span class="pill">${esc(card.topic)}</span>
+          <span class="pill">${game.index + 1}/${game.questions.length}</span>
+        </div>
+        <button class="flashcard" type="button" onclick="flipFlashcard()">
+          <div>
+            <div class="label">${flipped ? "Answer" : "Prompt"}</div>
+            <div class="main">${esc(flipped ? card.back : card.front)}</div>
+            <p>${esc(flipped ? card.explanation : "Click to reveal, then rate your confidence.")}</p>
+          </div>
+        </button>
+        <div class="wide-actions">
+          <button class="btn danger" type="button" onclick="rateFlash(false)">Again</button>
+          <button class="btn" type="button" onclick="rateFlash(false)">Hard</button>
+          <button class="btn primary" type="button" onclick="rateFlash(true)">Good</button>
+          <button class="btn warn" type="button" onclick="rateFlash(true)">Easy</button>
+        </div>
+      `;
+    }
+
+    function flipFlashcard() {
+      game.flipped = !game.flipped;
+      renderFlashcard();
+    }
+
+    function rateFlash(correct) {
+      const card = game.questions[game.index];
+      game.attempts++;
+      if (correct) { game.correct++; game.score++; }
+      saveTopicAttempt(card.topicId, correct);
+      game.index++;
+      game.flipped = false;
+      if (game.index >= game.questions.length) finishGame();
+      else renderGame();
+    }
+
+    function renderMatch() {
+      if (!game.matchTiles) {
+        const left = game.questions.map((p, i) => ({ key: i, text: p.left, side: "left" }));
+        const right = game.questions.map((p, i) => ({ key: i, text: p.right, side: "right" }));
+        game.matchTiles = shuffle([...left, ...right]).map((tile, id) => ({ ...tile, id, matched: false }));
+      }
+      $("gameArea").innerHTML = `
+        <div class="pill-row"><span class="pill">Match each term or topic to its meaning</span><span class="pill">${game.matched}/${game.questions.length} pairs</span></div>
+        <div class="match-grid">
+          ${game.matchTiles.map(tile => `<button class="btn match-btn ${tile.matched ? "matched" : ""} ${game.selected.includes(tile.id) ? "selected" : ""}" type="button" ${tile.matched ? "disabled" : ""} onclick="selectMatch(${tile.id})">${esc(tile.text)}</button>`).join("")}
+        </div>
+      `;
+      renderGameStats();
+      $("gameProgress").style.width = `${(game.matched / game.questions.length) * 100}%`;
+    }
+
+    function selectMatch(tileId) {
+      const tile = game.matchTiles.find(t => t.id === tileId);
+      if (!tile || tile.matched) return;
+      if (game.selected.includes(tileId)) {
+        game.selected = game.selected.filter(id => id !== tileId);
+        renderMatch();
+        return;
+      }
+      game.selected.push(tileId);
+      if (game.selected.length === 2) {
+        const [a, b] = game.selected.map(id => game.matchTiles.find(t => t.id === id));
+        const correct = a.key === b.key && a.side !== b.side;
+        game.attempts++;
+        const pair = game.questions[a.key];
+        if (correct) {
+          a.matched = true;
+          b.matched = true;
+          game.matched++;
+          game.correct++;
+          game.score++;
+        }
+        saveTopicAttempt(pair.topicId, correct);
+        game.selected = [];
+        if (game.matched >= game.questions.length) setTimeout(finishGame, 500);
+      }
+      renderMatch();
+    }
+
+    function startPerQuestionTimer() {
+      game.seconds = 10;
+      game.timer = setInterval(() => {
+        game.seconds--;
+        renderGameStats();
+        if (game.seconds <= 0) {
+          clearInterval(game.timer);
+          if (!game.answered) {
+            const q = game.questions[game.index];
+            saveTopicAttempt(q.topicId, false);
+            game.attempts++;
+            $("feedback").classList.remove("hidden");
+            $("feedback").innerHTML = `<b>Time.</b> Correct answer: <b>${esc(q.answer)}</b><div>${esc(q.explanation)}</div><div class="wide-actions"><button class="btn primary" type="button" onclick="nextQuestion()">Next</button></div>`;
+            document.querySelectorAll(".option").forEach(btn => btn.disabled = true);
+            game.answered = true;
+          }
+        }
+      }, 1000);
+    }
+
+    function startExamTimer() {
+      game.timer = setInterval(() => {
+        game.seconds--;
+        renderGameStats();
+        if (game.seconds <= 0) finishGame();
+      }, 1000);
+    }
+
+    function stopPerQuestionTimer() {
+      if (game?.perQuestionSeconds && game.timer) clearInterval(game.timer);
+    }
+
+    function stopGameTimers() {
+      if (game?.timer) clearInterval(game.timer);
+    }
+
+    function fmtClock(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${m}:${String(s).padStart(2, "0")}`;
+    }
+
+    function saveTopicAttempt(topicId, correct) {
+      const s = store.topicStats[topicId] || { attempts: 0, correct: 0, mistakes: 0 };
+      s.attempts++;
+      if (correct) s.correct++;
+      else s.mistakes++;
+      store.topicStats[topicId] = s;
+      saveStore();
+    }
+
+    function finishGame() {
+      if (!game) return;
+      stopGameTimers();
+      const accuracy = game.attempts ? Math.round((game.correct / game.attempts) * 100) : 0;
+      const elapsed = Math.round((Date.now() - game.start) / 1000);
+      const modeKey = game.mode;
+      store.best[modeKey] = Math.max(store.best[modeKey] || 0, game.score);
+      store.results.unshift({ date: new Date().toISOString(), mode: game.mode, score: game.score, accuracy, elapsed });
+      store.results = store.results.slice(0, 10);
+      saveStore();
+      $("resultTitle").textContent = game.mode === "exam" ? "Exam Simulator Complete" : "Session Complete";
+      $("resultSubtitle").textContent = `${modeName(game.mode)} finished in ${fmtClock(elapsed)}.`;
+      $("resultBody").innerHTML = `
+        <div class="stats">
+          <div class="stat"><b>${game.score}</b><span>score</span></div>
+          <div class="stat"><b>${accuracy}%</b><span>accuracy</span></div>
+          <div class="stat"><b>${game.attempts}</b><span>attempts</span></div>
+          <div class="stat"><b>${store.best[modeKey]}</b><span>best in mode</span></div>
+        </div>
+        <div class="reveal">
+          <b>Next best move:</b> ${weakTopicIds().length ? "Use Weak Topics to replay the areas you missed." : "Try the timed mixed exam or add a custom spelling list."}
+        </div>
+        <div class="wide-actions">
+          <button class="btn primary" type="button" onclick="startSession({ mode: game.mode === 'exam' ? 'mc' : game.mode, topics: game.topics, count: game.questions.length, title: game.title })">Play Again</button>
+          <button class="btn warn" type="button" data-action="weak">Weak Topics</button>
+          <button class="btn" type="button" data-nav="home">Dashboard</button>
+        </div>
+      `;
+      $("resultBody").querySelectorAll("[data-action]").forEach(btn => btn.addEventListener("click", () => handleAction(btn.dataset.action)));
+      $("resultBody").querySelectorAll("[data-nav]").forEach(btn => btn.addEventListener("click", () => showScreen(btn.dataset.nav)));
+      showScreen("result");
+    }
+
+    function modeName(mode) {
+      return {
+        mc: "Multiple Choice",
+        type: "Type Answer",
+        flash: "Flashcards",
+        match: "Match Terms",
+        speed: "Speed Round",
+        elimination: "Elimination",
+        exam: "Exam Simulator"
+      }[mode] || mode;
+    }
+
+    function sessionTitle(mode, topics) {
+      if (topics.length === 1) return `${modeName(mode)}: ${topics[0].title}`;
+      return `${modeName(mode)}: ${topics.length} topics`;
+    }
+
+    function clearStats() {
+      if (!confirm("Reset saved attempts, weak topics and best scores on this device?")) return;
+      store.topicStats = {};
+      store.best = {};
+      store.results = [];
+      saveStore();
+      renderDashboard();
+      toast("Local stats reset.");
+    }
+
+    function toast(message) {
+      $("toast").textContent = message;
+      $("toast").classList.add("show");
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => $("toast").classList.remove("show"), 2600);
+    }
+
+    function parseWords(text) {
+      return uniq(String(text || "")
+        .split(/[\n,;]+/)
+        .map(w => w.trim())
+        .filter(Boolean));
+    }
+
+    function handleSpellingAction(action) {
+      if (action === "saveWords") saveWords();
+      if (action === "defaults") loadDefaultWords();
+      if (action === "shuffleWords") shuffleWords();
+      if (action === "testVoice") speakWord(choice(getWords()) || "revision");
+      if (["practice", "solo", "two", "online"].includes(action)) startSpellingMode(action);
+    }
+
+    function saveWords() {
+      spelling.words = parseWords($("wordInput").value);
+      if (!spelling.words.length) spelling.words = DEFAULT_WORDS.slice();
+      store.spelling.words = spelling.words;
+      saveStore();
+      renderSpellingStats();
+      toast("Word list saved on this device.");
+    }
+
+    function loadDefaultWords() {
+      $("wordInput").value = DEFAULT_WORDS.join("\n");
+      saveWords();
+    }
+
+    function shuffleWords() {
+      $("wordInput").value = shuffle(getWords()).join("\n");
+      saveWords();
+    }
+
+    function getWords() {
+      const words = parseWords($("wordInput").value);
+      return words.length ? words : DEFAULT_WORDS.slice();
+    }
+
+    function renderSpellingStats() {
+      const words = getWords();
+      $("wordCount").textContent = words.length;
+      $("spellBest").textContent = store.spelling.best || 0;
+      $("spellStreak").textContent = store.spelling.streak || 0;
+    }
+
+    function renderSpellingHome() {
+      $("spellingPlay").innerHTML = `
+        <div class="word-target">
+          <div>
+            <b>Ready</b>
+            <span>Choose Practice, Timed Solo, 2 Player or Online Friend VS.</span>
+          </div>
+        </div>
+        <div class="mini-log">Tip: paste school spelling words into the box. The app trims extra spaces, but spelling answers must match perfectly.</div>
+      `;
+    }
+
+    function loadVoices() {
+      voices = "speechSynthesis" in window ? window.speechSynthesis.getVoices() : [];
+      const preferred = voices.filter(v => /en-GB|United Kingdom|British/i.test(`${v.lang} ${v.name}`));
+      const ordered = [...preferred, ...voices.filter(v => !preferred.includes(v))];
+      $("voiceSelect").innerHTML = ordered.length
+        ? ordered.map((v, i) => `<option value="${voices.indexOf(v)}">${esc(v.name)} (${esc(v.lang)})</option>`).join("")
+        : `<option value="">Browser voice unavailable</option>`;
+      $("voiceStatus").textContent = voices.length;
+    }
+
+    function speakWord(word) {
+      if (!("speechSynthesis" in window)) {
+        toast("This browser has no speech synthesis voice.");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = "en-GB";
+      const selected = voices[Number($("voiceSelect").value)];
+      const ukVoice = selected || voices.find(v => /en-GB|United Kingdom|British/i.test(`${v.lang} ${v.name}`));
+      if (ukVoice) utterance.voice = ukVoice;
+      utterance.rate = 0.82;
+      utterance.pitch = 1;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function startSpellingMode(mode) {
+      saveWords();
+      spelling.mode = mode;
+      spelling.score = 0;
+      spelling.streak = 0;
+      spelling.attempts = 0;
+      spelling.p1 = 0;
+      spelling.p2 = 0;
+      spelling.turn = 1;
+      spelling.round = 0;
+      clearInterval(spelling.timer);
+      if (mode === "online") return renderOnlineSpelling();
+      if (mode === "solo") spelling.seconds = 60;
+      nextSpellingWord();
+      renderSpellingGame();
+      if (mode === "solo") {
+        spelling.timer = setInterval(() => {
+          spelling.seconds--;
+          const header = $("spellModeHeader");
+          if (header) header.textContent = spellingHeaderText();
+          if (spelling.seconds <= 0) finishSpellingSolo();
+        }, 1000);
+      }
+    }
+
+    function nextSpellingWord() {
+      spelling.current = choice(getWords());
+      if (spelling.mode === "two") {
+        spelling.round++;
+        spelling.turn = spelling.round % 2 ? 1 : 2;
+      }
+    }
+
+    function renderSpellingGame(speak = true) {
+      $("spellingPlay").innerHTML = `
+        <div class="word-target">
+          <div>
+            <b id="spellModeHeader">${esc(spellingHeaderText())}</b>
+            <span>Listen, then type the word exactly.</span>
+          </div>
+        </div>
+        <div class="answer-box">
+          <input id="spellAnswer" autocomplete="off" spellcheck="false" placeholder="Type the word perfectly">
+          <button class="btn primary" type="button" onclick="checkSpellingAnswer()">Check</button>
+        </div>
+        <div class="wide-actions">
+          <button class="btn" type="button" onclick="speakWord(spelling.current)">Play Word</button>
+          <button class="btn ghost" type="button" onclick="revealSpellingWord()">Reveal</button>
+          <button class="btn" type="button" onclick="skipSpellingWord()">Skip</button>
+        </div>
+        <div id="spellFeedback" class="reveal hidden"></div>
+      `;
+      $("spellAnswer").addEventListener("keydown", e => {
+        if (e.key === "Enter") checkSpellingAnswer();
+      });
+      $("spellAnswer").focus();
+      if (speak) setTimeout(() => speakWord(spelling.current), 180);
+    }
+
+    function spellingHeaderText() {
+      if (spelling.mode === "solo") return `Score ${spelling.score} | Streak ${spelling.streak} | ${spelling.seconds}s`;
+      if (spelling.mode === "two") return `Player ${spelling.turn}'s turn | P1 ${spelling.p1} - P2 ${spelling.p2} | Round ${Math.ceil(spelling.round / 2)}/10`;
+      return "Practice mode";
+    }
+
+    function checkSpellingAnswer() {
+      const input = $("spellAnswer");
+      if (!input) return;
+      const typed = input.value.trim();
+      const correct = typed === spelling.current;
+      spelling.attempts++;
+      if (correct) {
+        spelling.score++;
+        spelling.streak++;
+        if (spelling.mode === "two") spelling.turn === 1 ? spelling.p1++ : spelling.p2++;
+      } else {
+        spelling.streak = 0;
+      }
+      store.spelling.streak = Math.max(store.spelling.streak || 0, spelling.streak);
+      store.spelling.best = Math.max(store.spelling.best || 0, spelling.score);
+      saveStore();
+      renderSpellingStats();
+      $("spellFeedback").classList.remove("hidden");
+      $("spellFeedback").innerHTML = `<b>${correct ? "Correct" : "Not quite"}.</b> The word was <b>${esc(spelling.current)}</b>. You typed <b>${esc(typed || "(blank)")}</b>.`;
+      setTimeout(() => {
+        if (spelling.mode === "two" && spelling.round >= 20) return finishSpellingTwo();
+        nextSpellingWord();
+        renderSpellingGame();
+      }, 950);
+    }
+
+    function revealSpellingWord() {
+      const box = $("spellFeedback");
+      if (!box) return;
+      box.classList.remove("hidden");
+      box.innerHTML = `The word is <b>${esc(spelling.current)}</b>.`;
+    }
+
+    function skipSpellingWord() {
+      spelling.streak = 0;
+      nextSpellingWord();
+      renderSpellingGame();
+    }
+
+    function finishSpellingSolo() {
+      clearInterval(spelling.timer);
+      store.spelling.best = Math.max(store.spelling.best || 0, spelling.score);
+      saveStore();
+      renderSpellingStats();
+      $("spellingPlay").innerHTML = `
+        <div class="word-target"><div><b>Score ${spelling.score}</b><span>Best: ${store.spelling.best || 0}. Accuracy: ${spelling.attempts ? Math.round((spelling.score / spelling.attempts) * 100) : 0}%</span></div></div>
+        <div class="wide-actions"><button class="btn primary" type="button" onclick="startSpellingMode('solo')">Play Solo Again</button><button class="btn" type="button" onclick="startSpellingMode('practice')">Practice</button></div>
+      `;
+    }
+
+    function finishSpellingTwo() {
+      clearInterval(spelling.timer);
+      const result = spelling.p1 === spelling.p2 ? "Draw" : spelling.p1 > spelling.p2 ? "Player 1 wins" : "Player 2 wins";
+      $("spellingPlay").innerHTML = `
+        <div class="word-target"><div><b>${result}</b><span>Final score: Player 1 ${spelling.p1}, Player 2 ${spelling.p2}</span></div></div>
+        <div class="wide-actions"><button class="btn primary" type="button" onclick="startSpellingMode('two')">Play 2 Player Again</button><button class="btn" type="button" onclick="startSpellingMode('practice')">Practice</button></div>
+      `;
+    }
+
+    function renderOnlineSpelling() {
+      const peerReady = typeof Peer !== "undefined";
+      $("spellingPlay").innerHTML = `
+        <div class="word-target"><div><b>Online Friend VS</b><span>${peerReady ? "Host or join with a room code." : "PeerJS did not load, so online VS is unavailable. Same-device VS still works."}</span></div></div>
+        <div class="answer-box">
+          <input id="roomCode" autocomplete="off" placeholder="Room code, for joining">
+          <button class="btn primary" type="button" onclick="joinSpellingRoom()" ${peerReady ? "" : "disabled"}>Join</button>
+        </div>
+        <div class="wide-actions">
+          <button class="btn warn" type="button" onclick="hostSpellingRoom()" ${peerReady ? "" : "disabled"}>Host New Room</button>
+          <button class="btn" type="button" onclick="startSpellingMode('two')">Use Same-Device VS</button>
+        </div>
+        <div id="onlinePanel" class="mini-log">Waiting for room setup.</div>
+      `;
+    }
+
+    function hostSpellingRoom() {
+      const code = `glspell-${Math.random().toString(36).slice(2, 8)}`;
+      spelling.net = { code, peer: new Peer(code), conn: null, role: "host", word: "", scores: { you: 0, them: 0 } };
+      $("onlinePanel").innerHTML = `Room code: <b>${esc(code)}</b><br>Share this with your friend.`;
+      spelling.net.peer.on("connection", conn => setupSpellingConnection(conn));
+      spelling.net.peer.on("error", err => $("onlinePanel").textContent = `Connection error: ${err.type || err.message}`);
+    }
+
+    function joinSpellingRoom() {
+      const code = $("roomCode").value.trim();
+      if (!code || typeof Peer === "undefined") return;
+      spelling.net = { code, peer: new Peer(), conn: null, role: "join", word: "", scores: { you: 0, them: 0 } };
+      spelling.net.peer.on("open", () => setupSpellingConnection(spelling.net.peer.connect(code)));
+      spelling.net.peer.on("error", err => $("onlinePanel").textContent = `Connection error: ${err.type || err.message}`);
+    }
+
+    function setupSpellingConnection(conn) {
+      spelling.net.conn = conn;
+      conn.on("open", () => {
+        $("onlinePanel").innerHTML = `Connected. ${spelling.net.role === "host" ? "Start the first word." : "Wait for the host."}`;
+        renderOnlineRound();
+      });
+      conn.on("data", data => {
+        if (data.type === "word") {
+          spelling.net.word = data.word;
+          spelling.current = data.word;
+          renderOnlineRound();
+          speakWord(data.word);
+        }
+        if (data.type === "score") {
+          spelling.net.scores.them = data.score;
+          renderOnlineRound(false);
+        }
+      });
+    }
+
+    function renderOnlineRound(speak = false) {
+      const net = spelling.net;
+      $("spellingPlay").innerHTML = `
+        <div class="word-target"><div><b>You ${net.scores.you} - Friend ${net.scores.them}</b><span>${net.word ? "Type the spoken word." : "Host starts the round."}</span></div></div>
+        <div class="answer-box">
+          <input id="spellAnswer" autocomplete="off" spellcheck="false" placeholder="Type the word perfectly">
+          <button class="btn primary" type="button" onclick="checkOnlineSpelling()">Check</button>
+        </div>
+        <div class="wide-actions">
+          <button class="btn warn" type="button" onclick="onlineNextWord()" ${net.role === "host" ? "" : "disabled"}>Next Word</button>
+          <button class="btn" type="button" onclick="speakWord(spelling.current)" ${net.word ? "" : "disabled"}>Play Word</button>
+        </div>
+        <div id="onlinePanel" class="mini-log">Room: ${esc(net.code)}. ${net.role === "host" ? "You control the next word." : "Connected to host."}</div>
+      `;
+      if (speak && net.word) speakWord(net.word);
+    }
+
+    function onlineNextWord() {
+      const word = choice(getWords());
+      spelling.net.word = word;
+      spelling.current = word;
+      spelling.net.conn?.send({ type: "word", word });
+      renderOnlineRound(true);
+    }
+
+    function checkOnlineSpelling() {
+      const typed = $("spellAnswer").value.trim();
+      const correct = typed === spelling.current;
+      if (correct) spelling.net.scores.you++;
+      spelling.net.conn?.send({ type: "score", score: spelling.net.scores.you });
+      $("onlinePanel").innerHTML = `${correct ? "Correct" : "Not quite"}. Word: <b>${esc(spelling.current)}</b>. You typed: <b>${esc(typed || "(blank)")}</b>.`;
+      setTimeout(() => renderOnlineRound(false), 1000);
+    }
+
+
+    function onlineTopics() {
+      if (online.presetTopicId) {
+        const picked = TOPICS.find(t => t.id === online.presetTopicId);
+        return picked ? [picked] : [];
+      }
+      return filteredTopics(true);
+    }
+
+    function renderOnlineLobby() {
+      const lobby = $("onlineLobby");
+      if (!lobby) return;
+      const peerReady = typeof Peer !== "undefined";
+      const topics = onlineTopics();
+      const label = online.presetTopicId && topics[0]
+        ? topics[0].title
+        : `${topics.length} topic${topics.length === 1 ? "" : "s"} from current filters`;
+      lobby.innerHTML = `
+        <div class="spelling-grid">
+          <section>
+            <div class="word-target">
+              <div>
+                <b>${peerReady ? "Ready for VS" : "PeerJS unavailable"}</b>
+                <span>${peerReady ? `Selected: ${esc(label)}` : "The app still works solo if the PeerJS CDN is blocked."}</span>
+              </div>
+            </div>
+            <div class="wide-actions">
+              <button class="btn warn" type="button" onclick="hostTopicRoom()" ${peerReady && topics.length ? "" : "disabled"}>Host Room</button>
+              <button class="btn ghost" type="button" onclick="online.presetTopicId=null; renderOnlineLobby();">Use Dashboard Filters</button>
+            </div>
+          </section>
+          <section>
+            <div class="voice-row">
+              <div>
+                <label class="small-label" for="onlineMode">Question style</label>
+                <select id="onlineMode">
+                  <option value="mc">Multiple choice race</option>
+                  <option value="type">Type-answer race</option>
+                </select>
+              </div>
+              <div>
+                <label class="small-label" for="onlineCount">Questions</label>
+                <select id="onlineCount">
+                  <option value="8">8</option>
+                  <option value="12" selected>12</option>
+                  <option value="20">20</option>
+                </select>
+              </div>
+            </div>
+            <div class="answer-box" style="margin-top:10px;">
+              <input id="topicRoomCode" autocomplete="off" placeholder="Paste room code to join">
+              <button class="btn primary" type="button" onclick="joinTopicRoom()" ${peerReady ? "" : "disabled"}>Join</button>
+            </div>
+            <div id="topicOnlineStatus" class="mini-log" style="margin-top:10px;">Host sends the exact same generated questions to your friend, so every topic can be played online.</div>
+          </section>
+        </div>
+      `;
+      $("onlinePlay").innerHTML = "";
+    }
+
+    function resetTopicOnline(preservePreset = true) {
+      try { online.conn?.close(); } catch {}
+      try { online.peer?.destroy(); } catch {}
+      const presetTopicId = preservePreset ? online.presetTopicId : null;
+      online = {
+        peer: null,
+        conn: null,
+        role: "",
+        code: "",
+        title: "",
+        mode: "mc",
+        questions: [],
+        index: 0,
+        score: 0,
+        friendScore: 0,
+        answered: false,
+        friendAnswered: false,
+        friendCorrect: null,
+        finished: false,
+        presetTopicId
+      };
+    }
+
+    function hostTopicRoom() {
+      if (typeof Peer === "undefined") return toast("PeerJS did not load yet.");
+      const topics = onlineTopics();
+      if (!topics.length) return toast("Pick at least one topic first.");
+      const mode = $("onlineMode")?.value || "mc";
+      const count = Number($("onlineCount")?.value || 12);
+      const questions = buildQuestions(topics, count, mode).map(serialiseOnlineQuestion);
+      const preset = online.presetTopicId;
+      resetTopicOnline(false);
+      online.presetTopicId = preset;
+      online.role = "host";
+      online.code = `gltopic-${Math.random().toString(36).slice(2, 8)}`;
+      online.mode = mode;
+      online.questions = questions;
+      online.title = topics.length === 1 ? topics[0].title : `${topics.length} topic VS`;
+      online.peer = new Peer(online.code);
+      $("topicOnlineStatus").innerHTML = `Creating room <b>${esc(online.code)}</b>...`;
+      online.peer.on("open", () => {
+        $("topicOnlineStatus").innerHTML = `Room code: <b>${esc(online.code)}</b><br>Share it with your friend, then wait here.`;
+      });
+      online.peer.on("connection", conn => setupTopicConnection(conn));
+      online.peer.on("error", err => $("topicOnlineStatus").textContent = `Connection error: ${err.type || err.message}`);
+    }
+
+    function joinTopicRoom() {
+      if (typeof Peer === "undefined") return toast("PeerJS did not load yet.");
+      const code = $("topicRoomCode")?.value.trim();
+      if (!code) return toast("Enter a room code first.");
+      resetTopicOnline(false);
+      online.role = "join";
+      online.code = code;
+      online.peer = new Peer();
+      $("topicOnlineStatus").textContent = "Connecting to room...";
+      online.peer.on("open", () => setupTopicConnection(online.peer.connect(code)));
+      online.peer.on("error", err => $("topicOnlineStatus").textContent = `Connection error: ${err.type || err.message}`);
+    }
+
+    function setupTopicConnection(conn) {
+      online.conn = conn;
+      conn.on("open", () => {
+        if (online.role === "host") {
+          conn.send({ type: "topic-setup", title: online.title, mode: online.mode, questions: online.questions });
+          renderOnlinePlay();
+        } else {
+          $("topicOnlineStatus").textContent = "Connected. Waiting for host questions...";
+        }
+      });
+      conn.on("data", handleTopicData);
+      conn.on("close", () => toast("Topic VS connection closed."));
+    }
+
+    function handleTopicData(data) {
+      if (!data || !data.type) return;
+      if (data.type === "topic-setup") {
+        online.title = data.title || "Topic VS";
+        online.mode = data.mode || "mc";
+        online.questions = data.questions || [];
+        online.index = 0;
+        online.score = 0;
+        online.friendScore = 0;
+        online.answered = false;
+        online.friendAnswered = false;
+        online.finished = false;
+        renderOnlinePlay();
+      }
+      if (data.type === "topic-answer") {
+        online.friendScore = Number(data.score || 0);
+        online.friendAnswered = true;
+        online.friendCorrect = Boolean(data.correct);
+        renderOnlinePlay(false);
+      }
+      if (data.type === "topic-next") {
+        online.index = Number(data.index || 0);
+        online.answered = false;
+        online.friendAnswered = false;
+        online.friendCorrect = null;
+        renderOnlinePlay();
+      }
+      if (data.type === "topic-finish") {
+        online.friendScore = Number(data.score || online.friendScore || 0);
+        online.finished = true;
+        renderOnlineFinish();
+      }
+    }
+
+    function serialiseOnlineQuestion(q) {
+      return {
+        topicId: q.topicId,
+        subject: q.subject,
+        unit: q.unit,
+        topic: q.topic,
+        passage: q.passage || "",
+        prompt: q.prompt,
+        answer: String(q.answer),
+        accepted: (q.accepted || [q.answer]).map(String),
+        options: (q.options || []).map(String),
+        explanation: q.explanation || ""
+      };
+    }
+
+    function renderOnlinePlay() {
+      const play = $("onlinePlay");
+      if (!play) return;
+      const q = online.questions[online.index];
+      if (!q) return renderOnlineFinish();
+      const friend = online.friendAnswered ? (online.friendCorrect ? "Friend answered correctly" : "Friend missed it") : "Friend thinking";
+      play.innerHTML = `
+        <div class="stats">
+          <div class="stat"><b>${online.score}</b><span>you</span></div>
+          <div class="stat"><b>${online.friendScore}</b><span>friend</span></div>
+          <div class="stat"><b>${online.index + 1}/${online.questions.length}</b><span>question</span></div>
+          <div class="stat"><b>${online.role === "host" ? "host" : "join"}</b><span>role</span></div>
+        </div>
+        <div class="pill-row">
+          <span class="pill ${q.subject}">${esc(q.subject)}</span>
+          <span class="pill">${esc(q.unit)}</span>
+          <span class="pill">${esc(q.topic)}</span>
+          <span class="pill">${esc(friend)}</span>
+        </div>
+        ${q.passage ? `<div class="passage">${esc(q.passage)}</div>` : ""}
+        <div class="prompt">${esc(q.prompt)}</div>
+        ${online.mode === "type" ? renderOnlineType(q) : renderOnlineOptions(q)}
+        <div id="onlineFeedback" class="reveal ${online.answered ? "" : "hidden"}">${online.answered ? onlineAnswerFeedback(q) : ""}</div>
+        <div class="wide-actions">
+          <button class="btn warn" type="button" onclick="nextOnlineQuestion()" ${online.role === "host" && online.answered ? "" : "disabled"}>Next Question</button>
+          <button class="btn ghost" type="button" onclick="renderOnlineLobby()">Leave Room</button>
+        </div>
+      `;
+    }
+
+    function renderOnlineOptions(q) {
+      return `<div class="options">${q.options.map((opt, i) => {
+        const isCorrect = online.answered && normalise(opt) === normalise(q.answer);
+        return `<button class="btn option ${isCorrect ? "correct" : ""}" type="button" onclick="submitOnlineOption(${i})" ${online.answered ? "disabled" : ""}>${esc(opt)}</button>`;
+      }).join("")}</div>`;
+    }
+
+    function renderOnlineType() {
+      return `
+        <div class="answer-box">
+          <input id="onlineAnswer" autocomplete="off" placeholder="Type your answer" ${online.answered ? "disabled" : ""} onkeydown="if(event.key==='Enter')submitOnlineTyped()">
+          <button class="btn primary" type="button" onclick="submitOnlineTyped()" ${online.answered ? "disabled" : ""}>Check</button>
+        </div>`;
+    }
+
+    function submitOnlineOption(index) {
+      if (online.answered) return;
+      const q = online.questions[online.index];
+      submitOnlineAnswer(q.options[index]);
+    }
+
+    function submitOnlineTyped() {
+      if (online.answered) return;
+      submitOnlineAnswer($("onlineAnswer")?.value || "");
+    }
+
+    function submitOnlineAnswer(value) {
+      const q = online.questions[online.index];
+      const correct = (q.accepted || [q.answer]).some(ans => normalise(ans) === normalise(value));
+      online.answered = true;
+      if (correct) online.score++;
+      saveTopicAttempt(q.topicId, correct);
+      online.conn?.send({ type: "topic-answer", score: online.score, correct });
+      renderOnlinePlay();
+    }
+
+    function onlineAnswerFeedback(q) {
+      const correct = (q.accepted || [q.answer]).some(ans => normalise(ans) === normalise(q.answer));
+      return `<b>${correct ? "Answered" : "Answered"}.</b> Correct answer: <b>${esc(q.answer)}</b><div>${esc(q.explanation)}</div>`;
+    }
+
+    function nextOnlineQuestion() {
+      if (online.role !== "host") return;
+      if (online.index + 1 >= online.questions.length) {
+        online.finished = true;
+        online.conn?.send({ type: "topic-finish", score: online.score });
+        renderOnlineFinish();
+        return;
+      }
+      online.index++;
+      online.answered = false;
+      online.friendAnswered = false;
+      online.friendCorrect = null;
+      online.conn?.send({ type: "topic-next", index: online.index });
+      renderOnlinePlay();
+    }
+
+    function renderOnlineFinish() {
+      const play = $("onlinePlay");
+      if (!play) return;
+      const result = online.score === online.friendScore ? "Draw" : online.score > online.friendScore ? "You win" : "Friend wins";
+      play.innerHTML = `
+        <div class="word-target">
+          <div>
+            <b>${esc(result)}</b>
+            <span>Final score: You ${online.score}, Friend ${online.friendScore}</span>
+          </div>
+        </div>
+        <div class="wide-actions">
+          <button class="btn primary" type="button" onclick="renderOnlineLobby()">New Topic VS</button>
+          <button class="btn" type="button" data-nav="home">Dashboard</button>
+        </div>
+      `;
+      play.querySelectorAll("[data-nav]").forEach(btn => btn.addEventListener("click", () => showScreen(btn.dataset.nav)));
+    }
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
