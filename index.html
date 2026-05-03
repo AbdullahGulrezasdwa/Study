@@ -819,7 +819,7 @@
         <button class="btn ghost" type="button" data-action="weak">Weak Topics</button>
         <button class="btn ghost" type="button" data-nav="spelling">Spelling Lab</button>
         <button class="btn ghost" type="button" data-action="comprehension">Comprehension</button>
-        <button class="btn ghost" type="button" data-action="topicVs">Topic VS</button>
+        <button class="btn ghost" type="button" data-action="topicVs">Tournament</button>
         <button class="btn primary" type="button" data-action="exam">Exam Simulator</button>
       </nav>
     </header>
@@ -841,7 +841,7 @@
             </div>
             <button class="btn primary" type="button" data-action="comprehension">Comprehension Lab</button>
             <button class="btn warn" type="button" data-action="spellingQuick">Open Spelling Lab</button>
-            <button class="btn primary" type="button" data-action="topicVs">Host Topic VS</button>
+            <button class="btn primary" type="button" data-action="topicVs">Host Tournament</button>
           </aside>
         </div>
 
@@ -903,7 +903,7 @@
           </div>
           <div class="control">
             <label>&nbsp;</label>
-            <button class="btn primary" type="button" data-action="topicVs">Online Topic VS</button>
+            <button class="btn primary" type="button" data-action="topicVs">Online Tournament</button>
           </div>
           <div class="control">
             <label>&nbsp;</label>
@@ -997,8 +997,8 @@
         <div class="spelling-shell">
           <div class="screen-head">
             <div>
-              <h2 id="onlineTitle">PeerJS Topic VS</h2>
-              <p>Host or join a room-code quiz for any dashboard topic, unit or subject filter.</p>
+              <h2 id="onlineTitle">Topic Tournament</h2>
+              <p>Race a friend on any topic. Speed scoring: faster correct answers earn more points.</p>
             </div>
             <button class="btn ghost" type="button" data-nav="home">Back to dashboard</button>
           </div>
@@ -1114,7 +1114,7 @@
     const ENGLISH_DATA = {
       retrieval: qset("Which detail is stated in the fiction extract?", "Mara is outside the observatory.", ["Mara is inside a classroom.", "Mara is outside the observatory.", "Mara has lost the key.", "Mara is waiting for a train."], "Retrieval means finding information directly stated in the text.", SAMPLE_PASSAGES.fiction, "Mara is outside the observatory."),
       inference: qset("What can you infer about the key?", "It may be unusual or important.", ["It is broken.", "It may be unusual or important.", "It belongs to a teacher.", "It is made of silver."], "The warmth and secrecy suggest importance without saying it directly.", SAMPLE_PASSAGES.fiction, "The key seems important because it feels warm and secretive."),
-      vocabulary: qset("In the fiction extract, what does 'dome' most likely mean?", "A rounded roof.", ["A rounded roof.", "A locked drawer.", "A type of telescope.", "A metal key."], "Context links it to the observatory roof.", SAMPLE_PASSAGES.fiction, "rounded roof"),
+      vocabulary: qset("In the passage below, what does 'dome' most likely mean?", "A rounded roof.", ["A rounded roof.", "A locked drawer.", "A type of telescope.", "A metal key."], "Context links it to the observatory roof. Reading the surrounding words — rain ticking and copper — points to a curved architectural structure.", SAMPLE_PASSAGES.fiction, "rounded roof"),
       "comprehension-skills": qset("Which skill means finding information that is directly stated?", "Retrieval", ["Retrieval", "Inference", "Evaluation", "Foreshadowing"], "Retrieval questions ask you to locate explicit information in the text.", "", "retrieval", { interaction: "mc", skill: "Reading Skills" }),
       "word-choice": qset("Choose the best word: The evidence was so ____ that everyone changed their mind.", "convincing", ["fragile", "convincing", "ordinary", "distant"], "Convincing evidence persuades people.", "", "convincing"),
       "sentence-completion": qset("Complete the sentence: Although the path was steep, ____.", "the climbers continued steadily", ["because the climbers stopped", "the climbers continued steadily", "and the mountain", "it was very"], "The second clause must complete the contrast and make a sentence.", "", "the climbers continued steadily"),
@@ -1143,6 +1143,17 @@
 
     const ENGLISH_EXTRA = buildEnglishExtras();
 
+    const VOCAB_PASSAGE_QUESTIONS = [
+      qset("In the passage below, what does 'tick' most likely mean?", "tap lightly", ["tap lightly", "count seconds", "scratch", "knock loudly"], "Rain 'ticking against' a surface means making light repeated taps — not counting time.", SAMPLE_PASSAGES.fiction, "tap"),
+      qset("In the passage below, what does 'warmer than it should' suggest about the key?", "It feels strangely or magically warm.", ["It is broken.", "It feels strangely or magically warm.", "It has been left in sunlight.", "It is made of copper."], "The phrase implies something unusual — the warmth goes beyond what a metal object normally feels.", SAMPLE_PASSAGES.fiction, "strangely warm"),
+      qset("In the passage below, which word is closest in meaning to 'unused'?", "vacant", ["busy", "crowded", "vacant", "colourful"], "Unused land is land left empty or not occupied — closest to 'vacant'.", SAMPLE_PASSAGES.nonfiction, "vacant"),
+      qset("In the passage below, what does 'wellbeing' most likely mean?", "health and happiness", ["physical strength only", "exam performance", "health and happiness", "wealth"], "Wellbeing refers to feeling healthy and content, not just physical strength.", SAMPLE_PASSAGES.nonfiction, "health and happiness"),
+      qset("In the passage below, what does 'supporters argue' tell you about the claim?", "It is an opinion, not a proven fact.", ["It is a proven fact.", "It is an opinion, not a proven fact.", "It is a definition.", "It is a statistic."], "'Supporters argue' signals that what follows is someone's point of view, not an established fact.", SAMPLE_PASSAGES.nonfiction, "opinion"),
+      qset("In the passage below, what does 'secretive' imply about the key?", "The key is hiding something or has a hidden purpose.", ["The key is very heavy.", "The key is hiding something or has a hidden purpose.", "The key is lost.", "The key is very old."], "Secretive means having or keeping secrets — the key is personified as hiding something.", SAMPLE_PASSAGES.fiction, "hiding something"),
+      qset("In the passage below, which word is closest in meaning to 'practical'?", "useful in real situations", ["theoretical", "creative", "useful in real situations", "expensive"], "Practical skills are skills you can apply in real life — the opposite of purely theoretical.", SAMPLE_PASSAGES.nonfiction, "useful"),
+      qset("In the passage below, what does 'copper dome' most likely describe?", "A curved metal roof", ["A type of clock", "A curved metal roof", "A metal telescope", "A type of key"], "Copper is a metal, and a dome is a curved roof — together they describe a rounded metal structure.", SAMPLE_PASSAGES.fiction, "curved metal roof")
+    ];
+
     function buildEnglishExtras() {
       const extras = {};
       TOPICS.filter(t => t.subject === "english").forEach(t => {
@@ -1151,6 +1162,10 @@
         const supportTerm = terms[1] || terms[0];
         const action = englishAction(t);
         const mistake = englishMistake(t);
+        if (t.id === "vocabulary") {
+          extras[t.id] = VOCAB_PASSAGE_QUESTIONS.slice();
+          return;
+        }
         extras[t.id] = [
           qset(`Which description best matches ${t.title}?`, t.description, [t.description, ...wrongEnglishDescriptions(t)], `This is the core skill for ${t.title}.`, "", t.description),
           qset(`Which key word belongs most strongly with ${t.title}?`, keyTerm, [keyTerm, supportTerm, "denominator", "circumference", "coefficient"], `${keyTerm} is one of the main terms for ${t.title}.`, "", keyTerm),
@@ -1239,7 +1254,7 @@
       const drills = {
         retrieval: qset("In the fiction extract, what is Mara holding?", "a key", ["a key", "a map", "a lantern", "a letter"], "The key is explicitly stated in the extract.", SAMPLE_PASSAGES.fiction, "key"),
         inference: qset("Which phrase best supports the idea that the scene is mysterious?", "holding its own secret", ["holding its own secret", "beside the locked observatory", "rain tick", "copper dome"], "This phrase suggests something hidden or unknown.", SAMPLE_PASSAGES.fiction, "holding its own secret"),
-        vocabulary: qset("Which word is closest in meaning to 'productive' in the non-fiction extract?", "useful", ["useful", "noisy", "expensive", "decorative only"], "Productive means creating useful results.", SAMPLE_PASSAGES.nonfiction, "useful"),
+        vocabulary: qset("In the passage below, which word is closest in meaning to 'productive'?", "useful", ["useful", "noisy", "expensive", "decorative only"], "In context, 'productive' describes land turning into green spaces that create results — closest in meaning to 'useful'.", SAMPLE_PASSAGES.nonfiction, "useful"),
         punctuation: qset("Choose the correct sentence.", "The garden, which opened in April, is popular.", ["The garden which opened, in April is popular.", "The garden, which opened in April, is popular.", "The garden which, opened in April, is popular.", "The garden which opened in April, is popular."], "The embedded clause is marked with a pair of commas.", "", "The garden, which opened in April, is popular."),
         rhetoric: qset("Which option uses a rhetorical question?", "Who would not want a safer playground?", ["Who would not want a safer playground?", "The playground is safer now.", "Safer parks, safer streets, safer lives.", "We need change today."], "A rhetorical question is asked for effect, not because the speaker needs an answer.", "", "Who would not want a safer playground?"),
         summarising: qset("Which detail should usually be removed from a concise summary?", "a tiny example that repeats the same point", ["the main problem", "the main solution", "a tiny example that repeats the same point", "the overall conclusion"], "Summaries keep main ideas and cut minor repetition.", "", "a tiny example that repeats the same point"),
@@ -1564,7 +1579,7 @@
               <button class="btn" type="button" onclick="startTopic('${t.id}', 'flash')">Flashcards</button>
               <button class="btn" type="button" onclick="startTopic('${t.id}', 'match')">Match</button>
               <button class="btn warn" type="button" onclick="startTopic('${t.id}', 'speed')">Speed</button>
-              <button class="btn primary" type="button" onclick="startTopicOnline('${t.id}')">Online VS</button>
+              <button class="btn primary" type="button" onclick="startTopicOnline('${t.id}')">Tournament</button>
             </div>
           </article>`;
       }).join("") || `<div class="empty">No topics match those filters.</div>`;
@@ -3063,12 +3078,15 @@
           <section>
             <div class="word-target">
               <div>
-                <b>${peerReady ? "Ready for VS" : "PeerJS unavailable"}</b>
-                <span>${peerReady ? `Selected: ${esc(label)}` : "The app still works solo if the PeerJS CDN is blocked."}</span>
+                <b>${peerReady ? "Ready to host" : "PeerJS unavailable"}</b>
+                <span>${peerReady ? `Topic: ${esc(label)}` : "The app still works solo if the PeerJS CDN is blocked."}</span>
               </div>
             </div>
+            <div class="reveal" style="margin-bottom:12px;font-size:0.88rem">
+              <b>Speed scoring:</b> Correct answers earn <b style="color:var(--lime)">+3 pts</b> (0-7s), <b style="color:var(--teal)">+2 pts</b> (7-14s) or <b style="color:var(--amber)">+1 pt</b> (14-20s). Wrong = 0. Highest total wins.
+            </div>
             <div class="wide-actions">
-              <button class="btn warn" type="button" onclick="hostTopicRoom()" ${peerReady && topics.length ? "" : "disabled"}>Host Room</button>
+              <button class="btn warn" type="button" onclick="hostTopicRoom()" ${peerReady && topics.length ? "" : "disabled"}>Host Tournament</button>
               <button class="btn ghost" type="button" onclick="online.presetTopicId=null; renderOnlineLobby();">Use Dashboard Filters</button>
             </div>
           </section>
@@ -3077,12 +3095,12 @@
               <div>
                 <label class="small-label" for="onlineMode">Question style</label>
                 <select id="onlineMode">
-                  <option value="mc">Multiple choice race</option>
-                  <option value="type">Type-answer race</option>
+                  <option value="mc">Multiple choice</option>
+                  <option value="type">Type-answer</option>
                 </select>
               </div>
               <div>
-                <label class="small-label" for="onlineCount">Questions</label>
+                <label class="small-label" for="onlineCount">Rounds</label>
                 <select id="onlineCount">
                   <option value="8">8</option>
                   <option value="12" selected>12</option>
@@ -3094,7 +3112,7 @@
               <input id="topicRoomCode" autocomplete="off" placeholder="Paste room code to join">
               <button class="btn primary" type="button" onclick="joinTopicRoom()" ${peerReady ? "" : "disabled"}>Join</button>
             </div>
-            <div id="topicOnlineStatus" class="mini-log" style="margin-top:10px;">Host sends the exact same generated questions to your friend, so every topic can be played online.</div>
+            <div id="topicOnlineStatus" class="mini-log" style="margin-top:10px;">The host generates the questions and sends the same set to both players — every topic can be played online.</div>
           </section>
         </div>
       `;
@@ -3129,7 +3147,11 @@
         lastAnswer: "",
         lastCorrect: null,
         finished: false,
-        presetTopicId
+        presetTopicId,
+        questionStart: 0,
+        lastSpeedBonus: 0,
+        friendSpeedBonus: 0,
+        autoAdvanceTimer: null
       };
     }
 
@@ -3212,6 +3234,7 @@
       }
       if (data.type === "topic-setup") {
         stopOnlineTimer();
+        clearAutoAdvance();
         online.title = data.title || "Topic VS";
         online.mode = data.mode || "mc";
         online.count = Number(data.count || data.questions?.length || 12);
@@ -3229,6 +3252,9 @@
         online.lastAnswer = "";
         online.lastCorrect = null;
         online.finished = false;
+        online.questionStart = 0;
+        online.lastSpeedBonus = 0;
+        online.friendSpeedBonus = 0;
         renderOnlinePlay();
       }
       if (data.type === "topic-player-ready") {
@@ -3243,6 +3269,8 @@
         online.friendCorrect = null;
         online.lastAnswer = "";
         online.lastCorrect = null;
+        online.lastSpeedBonus = 0;
+        online.friendSpeedBonus = 0;
         renderOnlinePlay();
         startOnlineTimer();
       }
@@ -3251,24 +3279,45 @@
         online.friendScore = Number(data.score || 0);
         online.friendAnswered = true;
         online.friendCorrect = Boolean(data.correct);
+        online.friendSpeedBonus = Number(data.speedBonus || 0);
         renderOnlinePlay(false);
+        checkAutoAdvance();
       }
       if (data.type === "topic-next") {
+        clearAutoAdvance();
         online.index = Number(data.index || 0);
         online.answered = false;
         online.friendAnswered = false;
         online.friendCorrect = null;
         online.lastAnswer = "";
         online.lastCorrect = null;
+        online.lastSpeedBonus = 0;
+        online.friendSpeedBonus = 0;
         renderOnlinePlay();
         startOnlineTimer();
       }
       if (data.type === "topic-finish") {
         stopOnlineTimer();
+        clearAutoAdvance();
         online.friendScore = Number(data.score || online.friendScore || 0);
         online.finished = true;
         renderOnlineFinish();
       }
+    }
+
+    function clearAutoAdvance() {
+      if (online?.autoAdvanceTimer) clearTimeout(online.autoAdvanceTimer);
+      if (online) online.autoAdvanceTimer = null;
+    }
+
+    function checkAutoAdvance() {
+      if (online.role !== "host") return;
+      if (!online.answered || !online.friendAnswered) return;
+      if (online.autoAdvanceTimer) return;
+      online.autoAdvanceTimer = setTimeout(() => {
+        online.autoAdvanceTimer = null;
+        nextOnlineQuestion();
+      }, 2200);
     }
 
     function serialiseOnlineQuestion(q) {
@@ -3296,20 +3345,32 @@
       if (!online.started) return renderOnlineReadyRoom();
       const q = online.questions[online.index];
       if (!q) return renderOnlineFinish();
-      const friend = online.friendAnswered ? (online.friendCorrect ? "Friend answered correctly" : "Friend missed it") : "Friend thinking";
+      const bothAnswered = online.answered && online.friendAnswered;
+      const friendStatus = online.friendAnswered
+        ? (online.friendCorrect
+            ? `Correct +${online.friendSpeedBonus || 1}`
+            : "Missed")
+        : (online.answered ? "Thinking..." : "Waiting");
       const wantsType = onlineQuestionUsesType(q);
+      const pct = Math.round(((online.index + 1) / online.questions.length) * 100);
+      const autoLabel = bothAnswered && online.role === "host" ? " (advancing...)" : "";
       play.innerHTML = `
         <div class="stats">
-          <div class="stat"><b>${online.score}</b><span>you</span></div>
-          <div class="stat"><b>${online.friendScore}</b><span>friend</span></div>
-          <div class="stat"><b>${online.index + 1}/${online.questions.length}</b><span>question</span></div>
-          <div class="stat"><b id="onlineTimerStat">${online.seconds}s</b><span>timer</span></div>
+          <div class="stat"><b>${online.score}</b><span>your pts</span></div>
+          <div class="stat"><b>${online.friendScore}</b><span>friend pts</span></div>
+          <div class="stat"><b>${online.index + 1}/${online.questions.length}</b><span>round</span></div>
+          <div class="stat"><b id="onlineTimerStat" style="color:var(--teal)">${online.seconds}s</b><span>timer</span></div>
+        </div>
+        <div class="progress" style="margin-bottom:4px"><div style="width:${pct}%"></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:0.8rem;color:var(--muted)">
+          <span>Round ${online.index + 1} of ${online.questions.length}${autoLabel}</span>
+          <span style="color:var(--amber);font-weight:900">Speed: +3 fast &middot; +2 mid &middot; +1 slow</span>
         </div>
         <div class="pill-row">
           <span class="pill ${q.subject}">${esc(q.subject)}</span>
           <span class="pill">${esc(q.unit)}</span>
           <span class="pill">${esc(q.topic)}</span>
-          <span class="pill">${esc(friend)}</span>
+          <span class="pill" style="color:${online.friendAnswered ? (online.friendCorrect ? "var(--lime)" : "var(--coral)") : "var(--muted)"}">${esc(friendStatus)}</span>
         </div>
         ${q.skill ? `<div class="skill-strip"><span class="skill-chip">${esc(q.skill)}</span>${q.interaction === "mc" ? `<span class="skill-chip">multiple choice only</span>` : ""}</div>` : ""}
         ${renderOnlinePassage(q)}
@@ -3317,33 +3378,37 @@
         ${wantsType ? renderOnlineType(q) : renderOnlineOptions(q)}
         <div id="onlineFeedback" class="reveal ${online.answered ? "" : "hidden"}">${online.answered ? onlineAnswerFeedback(q) : ""}</div>
         <div class="wide-actions">
-          <button class="btn warn" type="button" onclick="nextOnlineQuestion()" ${online.role === "host" && online.answered && online.friendAnswered ? "" : "disabled"}>Next Question</button>
+          ${online.role === "host" ? `<button class="btn warn" type="button" onclick="nextOnlineQuestion()" ${bothAnswered ? "" : "disabled"}>Next Round</button>` : `<span style="color:var(--muted);font-size:0.9rem">${online.answered ? "Waiting for friend..." : "Answer to continue"}</span>`}
           <button class="btn ghost" type="button" onclick="leaveTopicRoom()">Leave Room</button>
         </div>
       `;
+      updateOnlineTimerDisplay();
     }
 
     function renderOnlineReadyRoom() {
       const play = $("onlinePlay");
       if (!play) return;
-      const you = online.ready ? "Ready" : "Not ready";
-      const friend = online.conn ? (online.friendReady ? "Ready" : "Not ready") : "Waiting";
+      const youReady = online.ready;
+      const friendReady = online.conn ? online.friendReady : false;
+      const canStart = online.role === "host" && youReady && friendReady;
       play.innerHTML = `
-        <div class="stats">
-          <div class="stat"><b>${esc(you)}</b><span>you</span></div>
-          <div class="stat"><b>${esc(friend)}</b><span>friend</span></div>
-          <div class="stat"><b>${online.questions.length}</b><span>questions</span></div>
-          <div class="stat"><b>${online.mode === "type" ? "type" : "mc"}</b><span>mode</span></div>
+        <div style="text-align:center;padding:24px 0 8px">
+          <div style="font-size:0.78rem;color:var(--teal);font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Tournament Lobby</div>
+          <div style="font-size:clamp(1.4rem,3vw,2rem);font-weight:900;margin-bottom:4px">${esc(online.title || "Topic VS")}</div>
+          <div style="color:var(--muted);font-size:0.9rem">${online.questions.length} rounds &middot; ${online.mode === "type" ? "type-answer" : "multiple choice"} &middot; speed scoring</div>
         </div>
-        <div class="word-target">
-          <div>
-            <b>${online.role === "host" ? "Room Ready" : "Joined Room"}</b>
-            <span>${esc(online.title || "Topic VS")}. Both players mark ready before the host starts.</span>
-          </div>
+        <div class="stats" style="margin-top:20px">
+          <div class="stat" style="${youReady ? "border-color:var(--lime)" : ""}"><b style="color:${youReady ? "var(--lime)" : "var(--coral)"}">${youReady ? "READY" : "NOT READY"}</b><span>you</span></div>
+          <div class="stat" style="${friendReady ? "border-color:var(--lime)" : ""}"><b style="color:${friendReady ? "var(--lime)" : (online.conn ? "var(--coral)" : "var(--muted)")}">${friendReady ? "READY" : (online.conn ? "NOT READY" : "WAITING")}</b><span>friend</span></div>
+          <div class="stat"><b>${online.questions.length}</b><span>rounds</span></div>
+          <div class="stat"><b style="color:var(--amber)">+3/2/1</b><span>speed pts</span></div>
         </div>
-        <div class="wide-actions">
-          <button class="btn primary" type="button" onclick="setTopicReady()" ${online.ready ? "disabled" : ""}>I'm Ready</button>
-          <button class="btn warn" type="button" onclick="startTopicMatch()" ${online.role === "host" && online.ready && online.friendReady ? "" : "disabled"}>Start Match</button>
+        <div class="reveal" style="margin-top:4px">
+          <b>How scoring works:</b> Answer correctly to earn points. Faster answers earn more — <b style="color:var(--lime)">+3 pts</b> in the first 7 seconds, <b style="color:var(--teal)">+2 pts</b> in 7-14 seconds, <b style="color:var(--amber)">+1 pt</b> in the last 6 seconds.
+        </div>
+        <div class="wide-actions" style="margin-top:16px">
+          <button class="btn primary" type="button" onclick="setTopicReady()" ${youReady ? "disabled" : ""}>I'm Ready</button>
+          ${online.role === "host" ? `<button class="btn warn" type="button" onclick="startTopicMatch()" ${canStart ? "" : "disabled"}>Start Tournament</button>` : ""}
           <button class="btn ghost" type="button" onclick="leaveTopicRoom()">Leave Room</button>
         </div>
       `;
@@ -3385,12 +3450,11 @@
     function startOnlineTimer() {
       stopOnlineTimer();
       online.seconds = 20;
-      const timerStat = $("onlineTimerStat");
-      if (timerStat) timerStat.textContent = `${online.seconds}s`;
+      online.questionStart = Date.now();
+      updateOnlineTimerDisplay();
       online.timer = setInterval(() => {
         online.seconds--;
-        const stat = $("onlineTimerStat");
-        if (stat) stat.textContent = `${Math.max(0, online.seconds)}s`;
+        updateOnlineTimerDisplay();
         if (online.seconds <= 0) {
           stopOnlineTimer();
           if (!online.answered && online.started && !online.finished) submitOnlineAnswer("");
@@ -3398,9 +3462,23 @@
       }, 1000);
     }
 
+    function updateOnlineTimerDisplay() {
+      const stat = $("onlineTimerStat");
+      if (!stat) return;
+      const s = Math.max(0, online.seconds);
+      stat.textContent = `${s}s`;
+      stat.style.color = s <= 5 ? "var(--coral)" : s <= 10 ? "var(--amber)" : "var(--teal)";
+    }
+
     function stopOnlineTimer() {
       if (online?.timer) clearInterval(online.timer);
       if (online) online.timer = null;
+    }
+
+    function calcSpeedBonus(secondsLeft) {
+      if (secondsLeft >= 14) return 3;
+      if (secondsLeft >= 7) return 2;
+      return 1;
     }
 
     function renderOnlineOptions(q) {
@@ -3435,21 +3513,29 @@
       const q = online.questions[online.index];
       const selected = String(value ?? "").trim();
       const correct = (q.accepted || [q.answer]).some(ans => normalise(ans) === normalise(selected));
+      const speedBonus = correct ? calcSpeedBonus(online.seconds) : 0;
       online.answered = true;
       online.lastAnswer = selected;
       online.lastCorrect = correct;
-      if (correct) online.score++;
+      online.lastSpeedBonus = speedBonus;
+      if (correct) online.score += speedBonus;
       saveTopicAttempt(q.topicId, correct);
-      online.conn?.send({ type: "topic-answer", score: online.score, correct, index: online.index });
+      online.conn?.send({ type: "topic-answer", score: online.score, correct, speedBonus, index: online.index });
       renderOnlinePlay();
+      checkAutoAdvance();
     }
 
     function onlineAnswerFeedback(q) {
-      return `<b>${online.lastCorrect ? "Correct" : "Not quite"}.</b> You answered <b>${esc(online.lastAnswer || "(blank)")}</b>. Correct answer: <b>${esc(q.answer)}</b><div>${esc(q.explanation)}</div>`;
+      const bonus = online.lastSpeedBonus;
+      const bonusLabel = online.lastCorrect && bonus > 0
+        ? `<span style="color:var(--${bonus === 3 ? "lime" : bonus === 2 ? "teal" : "amber"}); font-weight:900; margin-left:8px">+${bonus} ${bonus === 3 ? "SPEED BONUS" : bonus === 2 ? "pts" : "pt"}</span>`
+        : "";
+      return `<b>${online.lastCorrect ? "Correct" : "Not quite"}.</b>${bonusLabel} You answered <b>${esc(online.lastAnswer || "(blank)")}</b>. Correct answer: <b>${esc(q.answer)}</b><div style="margin-top:6px;color:var(--muted)">${esc(q.explanation)}</div>`;
     }
 
     function nextOnlineQuestion() {
       if (online.role !== "host") return;
+      clearAutoAdvance();
       if (online.index + 1 >= online.questions.length) {
         online.finished = true;
         stopOnlineTimer();
@@ -3463,6 +3549,8 @@
       online.friendCorrect = null;
       online.lastAnswer = "";
       online.lastCorrect = null;
+      online.lastSpeedBonus = 0;
+      online.friendSpeedBonus = 0;
       online.conn?.send({ type: "topic-next", index: online.index });
       renderOnlinePlay();
       startOnlineTimer();
@@ -3491,19 +3579,58 @@
 
     function renderOnlineFinish() {
       stopOnlineTimer();
+      clearAutoAdvance();
       const play = $("onlinePlay");
       if (!play) return;
-      const result = online.score === online.friendScore ? "Draw" : online.score > online.friendScore ? "You win" : "Friend wins";
+      const youWin = online.score > online.friendScore;
+      const draw = online.score === online.friendScore;
+      const resultColor = draw ? "var(--amber)" : youWin ? "var(--lime)" : "var(--coral)";
+      const resultLabel = draw ? "Draw" : youWin ? "You Win!" : "Friend Wins";
+      const maxScore = Math.max(online.score, online.friendScore, 1);
+      const youPct = Math.round((online.score / maxScore) * 100);
+      const friendPct = Math.round((online.friendScore / maxScore) * 100);
       play.innerHTML = `
-        <div class="word-target">
-          <div>
-            <b>${esc(result)}</b>
-            <span>Final score: You ${online.score}, Friend ${online.friendScore}</span>
+        <div style="text-align:center;padding:28px 0 16px">
+          <div style="font-size:0.78rem;color:var(--teal);font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Tournament Over</div>
+          <div style="font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:${resultColor};line-height:1">${resultLabel}</div>
+        </div>
+        <div class="stats">
+          <div class="stat" style="${youWin ? "border-color:var(--lime);background:rgba(139,212,80,0.08)" : ""}">
+            <b style="font-size:1.8rem;color:${youWin ? "var(--lime)" : "var(--muted)"}">${online.score}</b>
+            <span>your points</span>
+          </div>
+          <div class="stat" style="${!youWin && !draw ? "border-color:var(--lime);background:rgba(139,212,80,0.08)" : ""}">
+            <b style="font-size:1.8rem;color:${!youWin && !draw ? "var(--lime)" : "var(--muted)"}">${online.friendScore}</b>
+            <span>friend's points</span>
+          </div>
+          <div class="stat">
+            <b>${online.questions.length}</b>
+            <span>rounds</span>
+          </div>
+          <div class="stat">
+            <b style="color:var(--amber)">${online.mode === "type" ? "type" : "mc"}</b>
+            <span>mode</span>
+          </div>
+        </div>
+        <div style="margin:8px 0 16px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <span style="font-size:0.8rem;color:var(--muted);width:50px;text-align:right">You</span>
+            <div style="flex:1;height:14px;border-radius:999px;background:#08171a;border:1px solid var(--line);overflow:hidden">
+              <div style="height:100%;width:${youPct}%;background:linear-gradient(90deg,var(--teal),var(--lime));transition:width 600ms ease"></div>
+            </div>
+            <span style="font-size:0.88rem;font-weight:900;color:var(--teal);width:40px">${online.score}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:0.8rem;color:var(--muted);width:50px;text-align:right">Friend</span>
+            <div style="flex:1;height:14px;border-radius:999px;background:#08171a;border:1px solid var(--line);overflow:hidden">
+              <div style="height:100%;width:${friendPct}%;background:linear-gradient(90deg,var(--amber),var(--coral));transition:width 600ms ease"></div>
+            </div>
+            <span style="font-size:0.88rem;font-weight:900;color:var(--amber);width:40px">${online.friendScore}</span>
           </div>
         </div>
         <div class="wide-actions">
           ${online.role === "host" ? `<button class="btn primary" type="button" onclick="rematchTopicRoom()">Rematch</button>` : `<button class="btn primary" type="button" disabled>Waiting for host rematch</button>`}
-          <button class="btn ghost" type="button" onclick="leaveTopicRoom()">New Topic VS</button>
+          <button class="btn ghost" type="button" onclick="leaveTopicRoom()">New Room</button>
           <button class="btn" type="button" data-nav="home">Dashboard</button>
         </div>
       `;
